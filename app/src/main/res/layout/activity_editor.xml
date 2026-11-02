@@ -112,29 +112,35 @@
                     android:layout_marginBottom="14dp" />
 
                 <!-- Interactive Preview Box (Photos / Videos + Draggable Liquid Glass Capsule) -->
-                <FrameLayout
+                <androidx.cardview.widget.CardView
                     android:id="@+id/previewContainer"
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
-                    android:background="#111111"
-                    android:clipToOutline="true">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#111111">
 
-                    <!-- Background Image / Video Target -->
-                    <ImageView
-                        android:id="@+id/ivPreviewMedia"
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/bg_button_light" />
+                        android:layout_height="match_parent">
 
-                    <!-- Custom Liquid Glass View with Refraction and Specular Rim Highlight -->
-                    <dev.liquidplus.watermark.ui.view.LiquidGlassView
-                        android:id="@+id/liquidGlassWatermark"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|center_horizontal"
-                        android:layout_marginBottom="16dp" />
-                </FrameLayout>
+                        <!-- Background Image / Video Target -->
+                        <ImageView
+                            android:id="@+id/ivPreviewMedia"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/bg_button_light" />
+
+                        <!-- Custom Liquid Glass View with Refraction and Specular Rim Highlight -->
+                        <dev.liquidplus.watermark.ui.view.LiquidGlassView
+                            android:id="@+id/liquidGlassWatermark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|center_horizontal"
+                            android:layout_marginBottom="14dp" />
+                    </FrameLayout>
+                </androidx.cardview.widget.CardView>
 
                 <!-- Pause/Resume Live Preview Button -->
                 <androidx.appcompat.widget.AppCompatButton

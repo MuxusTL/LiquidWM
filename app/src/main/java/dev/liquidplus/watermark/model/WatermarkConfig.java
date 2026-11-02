@@ -18,10 +18,10 @@ public class WatermarkConfig implements Serializable {
     public boolean showDateTime = true;
 
     // Liquid Glass Optics
-    public float blurStrength = 0.60f;
-    public float refractionStrength = 0.75f;
-    public float rimLightStrength = 0.85f;
-    public int capsuleHeightDp = 44;
+    public float blurStrength = 0.50f;
+    public float refractionStrength = 0.85f;
+    public float rimLightStrength = 0.90f;
+    public int capsuleHeightDp = 34;
     public float posXRatio = 0.5f; // center
     public float posYRatio = 0.86f; // near bottom
     public float scale = 1.0f;

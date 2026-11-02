@@ -4,15 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,22 +20,23 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import dev.liquidplus.watermark.R;
+import dev.liquidplus.watermark.engine.KyantGlassEngine;
 import dev.liquidplus.watermark.model.WatermarkConfig;
 
 public class LiquidGlassView extends View {
 
     private WatermarkConfig config = new WatermarkConfig();
-    private Paint fillPaint;
-    private Paint strokePaint;
+    private KyantGlassEngine glassEngine;
+
     private Paint textTitlePaint;
     private Paint textSubPaint;
-    private Paint shadowPaint;
 
     private RectF capsuleRect = new RectF();
-    private Path capsulePath = new Path();
+    private RectF backdropCropRect = new RectF();
 
     private Drawable brandDrawable = null;
     private Bitmap customLogoBitmap = null;
+    private Bitmap backdropBitmap = null;
 
     private Typeface fontRegular;
     private Typeface fontMedium;
@@ -65,6 +63,8 @@ public class LiquidGlassView extends View {
     }
 
     private void init() {
+        glassEngine = new KyantGlassEngine();
+
         // Load Inter fonts
         try {
             fontRegular = ResourcesCompat.getFont(getContext(), R.font.inter_regular);
@@ -76,32 +76,18 @@ public class LiquidGlassView extends View {
             fontBold = Typeface.DEFAULT_BOLD;
         }
 
-        // 1. Fill paint (Frosted liquid glass translucent fill)
-        fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        fillPaint.setStyle(Paint.Style.FILL);
-
-        // 2. Stroke paint (Fresnel optical rim light)
-        strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(dpToPx(1.2f));
-
-        // 3. Shadow paint
-        shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        shadowPaint.setStyle(Paint.Style.FILL);
-        shadowPaint.setColor(Color.parseColor("#33000000"));
-
-        // 4. Text paints
+        // Text paints - crisp white typography with subtle optical shadow
         textTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textTitlePaint.setColor(Color.WHITE);
-        textTitlePaint.setTextSize(dpToPx(14f));
-        textTitlePaint.setTypeface(fontBold);
-        textTitlePaint.setShadowLayer(dpToPx(2f), 0, dpToPx(1f), Color.parseColor("#66000000"));
+        textTitlePaint.setTextSize(dpToPx(12f));
+        textTitlePaint.setTypeface(fontBold != null ? fontBold : Typeface.DEFAULT_BOLD);
+        textTitlePaint.setShadowLayer(dpToPx(1.8f), 0, dpToPx(0.8f), Color.parseColor("#80000000"));
 
         textSubPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        textSubPaint.setColor(Color.parseColor("#E4E4E7"));
-        textSubPaint.setTextSize(dpToPx(10f));
-        textSubPaint.setTypeface(fontRegular);
-        textSubPaint.setShadowLayer(dpToPx(1.5f), 0, dpToPx(0.8f), Color.parseColor("#66000000"));
+        textSubPaint.setColor(Color.WHITE);
+        textSubPaint.setTextSize(dpToPx(9.2f));
+        textSubPaint.setTypeface(fontMedium != null ? fontMedium : Typeface.DEFAULT);
+        textSubPaint.setShadowLayer(dpToPx(1.4f), 0, dpToPx(0.7f), Color.parseColor("#80000000"));
 
         updateBrandLogo();
     }
@@ -115,6 +101,11 @@ public class LiquidGlassView extends View {
 
     public WatermarkConfig getConfig() {
         return this.config;
+    }
+
+    public void setBackdropBitmap(Bitmap bmp) {
+        this.backdropBitmap = bmp;
+        invalidate();
     }
 
     public void setCustomLogoBitmap(Bitmap bmp) {
@@ -152,8 +143,8 @@ public class LiquidGlassView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        float density = getResources().getDisplayMetrics().density;
-        float h = dpToPx(44f);
+        // Slim, elegant capsule height matching user's reference image
+        float h = dpToPx(34f);
 
         // Measure text widths
         float modelWidth = textTitlePaint.measureText(config.deviceModel != null ? config.deviceModel : "");
@@ -161,106 +152,68 @@ public class LiquidGlassView extends View {
         float dateWidth = config.showDateTime && config.dateTime != null ? textSubPaint.measureText(config.dateTime) : 0;
         float rightColWidth = Math.max(paramsWidth, dateWidth);
 
-        float logoSize = dpToPx(24f);
-        float paddingSide = dpToPx(18f);
-        float spacingMiddle = dpToPx(28f);
-        float logoMargin = dpToPx(10f);
+        float logoSize = dpToPx(16f);
+        float paddingSide = dpToPx(14f);
+        float spacingMiddle = dpToPx(20f);
+        float logoMargin = dpToPx(7f);
 
         float totalW = paddingSide * 2 + logoSize + logoMargin + modelWidth + spacingMiddle + rightColWidth;
-        // Minimum capsule width
-        totalW = Math.max(totalW, dpToPx(260f));
+        totalW = Math.max(totalW, dpToPx(210f));
 
-        setMeasuredDimension((int) Math.ceil(totalW + dpToPx(16f)), (int) Math.ceil(h + dpToPx(12f)));
+        // Add small padding for drop shadow
+        setMeasuredDimension((int) Math.ceil(totalW + dpToPx(12f)), (int) Math.ceil(h + dpToPx(10f)));
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float shadowPadding = dpToPx(4f);
-        float w = getWidth() - shadowPadding * 2;
-        float h = getHeight() - shadowPadding * 2;
+        float shadowPaddingX = dpToPx(4f);
+        float shadowPaddingY = dpToPx(3f);
+        float w = getWidth() - shadowPaddingX * 2;
+        float h = getHeight() - shadowPaddingY * 2;
         float r = h / 2.0f; // Perfect pill hemisphere
 
-        capsuleRect.set(shadowPadding, shadowPadding, shadowPadding + w, shadowPadding + h);
-        capsulePath.reset();
-        capsulePath.addRoundRect(capsuleRect, r, r, Path.Direction.CW);
+        capsuleRect.set(shadowPaddingX, shadowPaddingY, shadowPaddingX + w, shadowPaddingY + h);
 
-        // 1. Drop shadow behind the capsule
-        canvas.drawRoundRect(capsuleRect.left, capsuleRect.top + dpToPx(2.5f),
-                capsuleRect.right, capsuleRect.bottom + dpToPx(2.5f), r, r, shadowPaint);
+        // Calculate backdrop crop rect relative to parent container
+        calculateBackdropCrop(capsuleRect);
 
-        // 2. Liquid Glass Backdrop Frosted Gradient
-        int alphaTop = (int) (clamp(config.blurStrength * 0.45f + 0.15f, 0.15f, 0.65f) * 255);
-        int alphaBottom = (int) (clamp(config.blurStrength * 0.25f + 0.08f, 0.08f, 0.40f) * 255);
-        LinearGradient fillGrad = new LinearGradient(
-                capsuleRect.left, capsuleRect.top,
-                capsuleRect.left, capsuleRect.bottom,
-                Color.argb(alphaTop, 255, 255, 255),
-                Color.argb(alphaBottom, 255, 255, 255),
-                Shader.TileMode.CLAMP
+        // 1. Draw Liquid Glass Refraction & Highlights using Kyant0 Engine
+        glassEngine.drawLiquidGlass(
+                canvas,
+                capsuleRect,
+                backdropBitmap,
+                backdropCropRect,
+                config.blurStrength,
+                config.refractionStrength,
+                config.rimLightStrength
         );
-        fillPaint.setShader(fillGrad);
-        canvas.drawPath(capsulePath, fillPaint);
 
-        // 3. Specular Optical Rim Light (Fresnel reflection along the curved edge)
-        int rimAlpha = (int) (config.rimLightStrength * 220);
-        LinearGradient rimGrad = new LinearGradient(
-                capsuleRect.left, capsuleRect.top,
-                capsuleRect.right, capsuleRect.bottom,
-                new int[]{
-                        Color.argb(rimAlpha, 255, 255, 255),
-                        Color.argb((int)(rimAlpha * 0.4f), 255, 255, 255),
-                        Color.argb((int)(rimAlpha * 0.7f), 255, 255, 255)
-                },
-                new float[]{0.0f, 0.6f, 1.0f},
-                Shader.TileMode.CLAMP
-        );
-        strokePaint.setShader(rimGrad);
-        canvas.drawPath(capsulePath, strokePaint);
-
-        // 4. Top highlight sheen (Subtle liquid reflection arc inside)
-        RectF innerSheen = new RectF(
-                capsuleRect.left + dpToPx(3f),
-                capsuleRect.top + dpToPx(1.5f),
-                capsuleRect.right - dpToPx(3f),
-                capsuleRect.top + h * 0.42f
-        );
-        Paint sheenPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        sheenPaint.setShader(new LinearGradient(
-                innerSheen.left, innerSheen.top,
-                innerSheen.left, innerSheen.bottom,
-                Color.argb((int)(config.rimLightStrength * 70), 255, 255, 255),
-                Color.TRANSPARENT,
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawRoundRect(innerSheen, r, r, sheenPaint);
-
-        // 5. Draw Content inside the Capsule
-        float paddingLeft = capsuleRect.left + dpToPx(16f);
-        float paddingRight = capsuleRect.right - dpToPx(16f);
+        // 2. Draw Content inside the Capsule (Brand, Device, Camera Params, Date)
+        float paddingLeft = capsuleRect.left + dpToPx(13f);
+        float paddingRight = capsuleRect.right - dpToPx(13f);
         float centerY = capsuleRect.centerY();
-        float logoSize = dpToPx(22f);
+        float logoSize = dpToPx(16f);
 
         boolean isLeft = WatermarkConfig.POSITION_LEFT.equalsIgnoreCase(config.logoPosition);
 
-        // Draw Left: Logo & Device Model
         if (isLeft) {
             float curX = paddingLeft;
             // Draw Logo
             if (customLogoBitmap != null) {
                 RectF dest = new RectF(curX, centerY - logoSize / 2f, curX + logoSize, centerY + logoSize / 2f);
                 canvas.drawBitmap(customLogoBitmap, null, dest, null);
-                curX += logoSize + dpToPx(10f);
+                curX += logoSize + dpToPx(7f);
             } else if (brandDrawable != null) {
                 brandDrawable.setBounds((int) curX, (int)(centerY - logoSize / 2f),
                         (int)(curX + logoSize), (int)(centerY + logoSize / 2f));
                 brandDrawable.draw(canvas);
-                curX += logoSize + dpToPx(10f);
+                curX += logoSize + dpToPx(7f);
             }
 
             // Draw Device Model
-            if (config.deviceModel != null) {
+            if (config.deviceModel != null && !config.deviceModel.isEmpty()) {
                 Paint.FontMetrics fm = textTitlePaint.getFontMetrics();
                 float textY = centerY - (fm.ascent + fm.descent) / 2f;
                 canvas.drawText(config.deviceModel, curX, textY, textTitlePaint);
@@ -271,18 +224,20 @@ public class LiquidGlassView extends View {
             textSubPaint.setTextAlign(Paint.Align.RIGHT);
 
             if (config.showDateTime && config.dateTime != null && !config.dateTime.isEmpty()) {
-                // Two lines
-                float line1Y = centerY - dpToPx(2f);
-                float line2Y = centerY + dpToPx(11f);
-                if (config.cameraParams != null) {
+                // Two compact lines
+                float line1Y = centerY - dpToPx(1.8f);
+                float line2Y = centerY + dpToPx(9.0f);
+                if (config.cameraParams != null && !config.cameraParams.isEmpty()) {
                     canvas.drawText(config.cameraParams, rightX, line1Y, textSubPaint);
                 }
+                textSubPaint.setColor(Color.parseColor("#E0E0E0"));
                 canvas.drawText(config.dateTime, rightX, line2Y, textSubPaint);
+                textSubPaint.setColor(Color.WHITE);
             } else {
                 // Single centered line
                 Paint.FontMetrics fm = textSubPaint.getFontMetrics();
                 float textY = centerY - (fm.ascent + fm.descent) / 2f;
-                if (config.cameraParams != null) {
+                if (config.cameraParams != null && !config.cameraParams.isEmpty()) {
                     canvas.drawText(config.cameraParams, rightX, textY, textSubPaint);
                 }
             }
@@ -291,71 +246,104 @@ public class LiquidGlassView extends View {
         } else {
             // Logo on the Right
             float leftX = paddingLeft;
-            // Draw Device Model on the Left
-            if (config.deviceModel != null) {
+            if (config.deviceModel != null && !config.deviceModel.isEmpty()) {
                 Paint.FontMetrics fm = textTitlePaint.getFontMetrics();
                 float textY = centerY - (fm.ascent + fm.descent) / 2f;
                 canvas.drawText(config.deviceModel, leftX, textY, textTitlePaint);
             }
 
-            float curX = paddingRight;
-            // Draw Logo on the Right
+            float curRight = paddingRight;
             if (customLogoBitmap != null) {
-                RectF dest = new RectF(curX - logoSize, centerY - logoSize / 2f, curX, centerY + logoSize / 2f);
+                RectF dest = new RectF(curRight - logoSize, centerY - logoSize / 2f, curRight, centerY + logoSize / 2f);
                 canvas.drawBitmap(customLogoBitmap, null, dest, null);
-                curX -= (logoSize + dpToPx(10f));
+                curRight -= (logoSize + dpToPx(7f));
             } else if (brandDrawable != null) {
-                brandDrawable.setBounds((int)(curX - logoSize), (int)(centerY - logoSize / 2f),
-                        (int) curX, (int)(centerY + logoSize / 2f));
+                brandDrawable.setBounds((int)(curRight - logoSize), (int)(centerY - logoSize / 2f),
+                        (int) curRight, (int)(centerY + logoSize / 2f));
                 brandDrawable.draw(canvas);
-                curX -= (logoSize + dpToPx(10f));
+                curRight -= (logoSize + dpToPx(7f));
             }
 
-            // Draw Specs to the left of the Logo
             textSubPaint.setTextAlign(Paint.Align.RIGHT);
             if (config.showDateTime && config.dateTime != null && !config.dateTime.isEmpty()) {
-                float line1Y = centerY - dpToPx(2f);
-                float line2Y = centerY + dpToPx(11f);
-                if (config.cameraParams != null) {
-                    canvas.drawText(config.cameraParams, curX, line1Y, textSubPaint);
+                float line1Y = centerY - dpToPx(1.8f);
+                float line2Y = centerY + dpToPx(9.0f);
+                if (config.cameraParams != null && !config.cameraParams.isEmpty()) {
+                    canvas.drawText(config.cameraParams, curRight, line1Y, textSubPaint);
                 }
-                canvas.drawText(config.dateTime, curX, line2Y, textSubPaint);
+                textSubPaint.setColor(Color.parseColor("#E0E0E0"));
+                canvas.drawText(config.dateTime, curRight, line2Y, textSubPaint);
+                textSubPaint.setColor(Color.WHITE);
             } else {
                 Paint.FontMetrics fm = textSubPaint.getFontMetrics();
                 float textY = centerY - (fm.ascent + fm.descent) / 2f;
-                if (config.cameraParams != null) {
-                    canvas.drawText(config.cameraParams, curX, textY, textSubPaint);
+                if (config.cameraParams != null && !config.cameraParams.isEmpty()) {
+                    canvas.drawText(config.cameraParams, curRight, textY, textSubPaint);
                 }
             }
             textSubPaint.setTextAlign(Paint.Align.LEFT);
         }
     }
 
+    private void calculateBackdropCrop(RectF capsule) {
+        if (backdropBitmap == null || backdropBitmap.isRecycled()) return;
+        View parent = (View) getParent();
+        if (parent == null || parent.getWidth() == 0 || parent.getHeight() == 0) return;
+
+        float parentW = parent.getWidth();
+        float parentH = parent.getHeight();
+        float bmpW = backdropBitmap.getWidth();
+        float bmpH = backdropBitmap.getHeight();
+
+        // Calculate aspect fill / center crop scale
+        float scale = Math.max(parentW / bmpW, parentH / bmpH);
+        float scaledW = bmpW * scale;
+        float scaledH = bmpH * scale;
+        float dx = (parentW - scaledW) / 2.0f;
+        float dy = (parentH - scaledH) / 2.0f;
+
+        // View coordinate in parent
+        float viewX = getX() + capsule.left;
+        float viewY = getY() + capsule.top;
+
+        // Map to bitmap pixel coordinate
+        float cropL = (viewX - dx) / scale;
+        float cropT = (viewY - dy) / scale;
+        float cropW = capsule.width() / scale;
+        float cropH = capsule.height() / scale;
+
+        backdropCropRect.set(cropL, cropT, cropL + cropW, cropT + cropH);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                dX = getX() - event.getRawX();
-                dY = getY() - event.getRawY();
                 touchStartX = event.getRawX();
                 touchStartY = event.getRawY();
+                dX = getX() - touchStartX;
+                dY = getY() - touchStartY;
                 isDragging = false;
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
                 return true;
 
             case MotionEvent.ACTION_MOVE:
                 float diffX = Math.abs(event.getRawX() - touchStartX);
                 float diffY = Math.abs(event.getRawY() - touchStartY);
-                if (diffX > 10 || diffY > 10) {
+                if (diffX > 6 || diffY > 6) {
                     isDragging = true;
                 }
                 if (isDragging) {
+                    float newX = event.getRawX() + dX;
+                    float newY = event.getRawY() + dY;
+
                     ViewGroup parent = (ViewGroup) getParent();
                     if (parent != null) {
-                        float newX = event.getRawX() + dX;
-                        float newY = event.getRawY() + dY;
-                        // Clamp inside parent container
                         newX = Math.max(0, Math.min(newX, parent.getWidth() - getWidth()));
                         newY = Math.max(0, Math.min(newY, parent.getHeight() - getHeight()));
+
                         setX(newX);
                         setY(newY);
 
@@ -365,10 +353,17 @@ public class LiquidGlassView extends View {
                             config.posYRatio = (newY + getHeight() / 2f) / parent.getHeight();
                         }
                     }
+                    invalidate();
                 }
                 return true;
 
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (getParent() != null) {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                }
+                isDragging = false;
+                invalidate();
                 return true;
         }
         return super.onTouchEvent(event);
@@ -376,9 +371,5 @@ public class LiquidGlassView extends View {
 
     private float dpToPx(float dp) {
         return dp * getResources().getDisplayMetrics().density;
-    }
-
-    private float clamp(float val, float min, float max) {
-        return Math.max(min, Math.min(max, val));
     }
 }

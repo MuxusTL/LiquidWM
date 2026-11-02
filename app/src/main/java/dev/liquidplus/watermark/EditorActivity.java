@@ -184,6 +184,9 @@ public class EditorActivity extends AppCompatActivity {
         }
 
         // Apply config to Watermark View
+        if (sourceBitmap != null) {
+            liquidGlassWatermark.setBackdropBitmap(sourceBitmap);
+        }
         liquidGlassWatermark.setConfig(config);
     }
 
