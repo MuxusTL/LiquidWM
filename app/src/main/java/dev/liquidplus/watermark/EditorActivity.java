@@ -163,9 +163,11 @@ public class EditorActivity extends AppCompatActivity {
 
     private void loadMedia() {
         if (mediaUri != null && "photo".equals(mediaType)) {
-            try (InputStream in = getContentResolver().openInputStream(mediaUri)) {
-                sourceBitmap = BitmapFactory.decodeStream(in);
-                ivPreviewMedia.setImageBitmap(sourceBitmap);
+            try {
+                sourceBitmap = ExifReader.loadOrientedBitmap(this, mediaUri);
+                if (sourceBitmap != null) {
+                    ivPreviewMedia.setImageBitmap(sourceBitmap);
+                }
 
                 // Auto-read EXIF metadata
                 ExifReader.ExifData exif = ExifReader.readFromUri(this, mediaUri);
@@ -427,11 +429,12 @@ public class EditorActivity extends AppCompatActivity {
             // Photo Export
             new Thread(() -> {
                 try {
-                    Bitmap targetBitmap = sourceBitmap;
+                    Bitmap targetBitmap = null;
                     if (mediaUri != null) {
-                        try (InputStream in = getContentResolver().openInputStream(mediaUri)) {
-                            targetBitmap = BitmapFactory.decodeStream(in);
-                        }
+                        targetBitmap = ExifReader.loadOrientedBitmap(this, mediaUri);
+                    }
+                    if (targetBitmap == null) {
+                        targetBitmap = sourceBitmap;
                     }
 
                     Bitmap rendered = LiquidGlassRenderer.renderWatermark(this, targetBitmap, config, customLogoBitmap);

@@ -225,14 +225,15 @@ public class KyantGlassEngine {
             }
         }
 
+        boolean isHw = canvas.isHardwareAccelerated();
         boolean drewRefraction = false;
 
-        // Try AGSL GPU Shader on Android 13+
-        if (slice != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslRuntimeShader != null) {
+        // Try AGSL GPU Shader on Android 13+ ONLY if canvas is hardware-accelerated
+        if (isHw && slice != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslRuntimeShader != null) {
             drewRefraction = drawAgslRefraction(canvas, pillPath, capsuleRect, slice, w, h, r, refractionStrength);
         }
 
-        // Software Fallback (Runs on all Android versions & Bitmap exports)
+        // Software Fallback (Runs on all Android versions, software canvases & Bitmap exports)
         if (!drewRefraction && slice != null) {
             Bitmap refractedSlice = renderSoftwareRefraction(slice, (int) w, (int) h, refractionStrength, blurStrength);
             if (refractedSlice != null) {
@@ -254,11 +255,11 @@ public class KyantGlassEngine {
         // 3. Subtle Liquid Glass Tint Layer (crisp light absorption)
         Paint glassTint = new Paint(Paint.ANTI_ALIAS_FLAG);
         glassTint.setStyle(Paint.Style.FILL);
-        glassTint.setColor(Color.argb(drewRefraction ? 14 : 45, 255, 255, 255));
+        glassTint.setColor(Color.argb(drewRefraction ? 20 : 45, 255, 255, 255));
         canvas.drawRoundRect(capsuleRect, r, r, glassTint);
 
-        // 4. Interactive Specular Highlight (AGSL on API 33+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslHighlightShader != null) {
+        // 4. Interactive Specular Highlight (AGSL on API 33+, Hardware Accelerated only)
+        if (isHw && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslHighlightShader != null) {
             drawAgslHighlight(canvas, pillPath, capsuleRect, w, h, r, rimLightStrength);
         }
 
@@ -293,12 +294,11 @@ public class KyantGlassEngine {
             BitmapShader bmpShader = new BitmapShader(slice, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
             Matrix matrix = new Matrix();
             matrix.postScale(w / slice.getWidth(), h / slice.getHeight());
-            matrix.postTranslate(capsuleRect.left, capsuleRect.top);
             bmpShader.setLocalMatrix(matrix);
 
             shader.setInputShader("content", bmpShader);
             shader.setFloatUniform("size", w, h);
-            shader.setFloatUniform("offset", -capsuleRect.left, -capsuleRect.top);
+            shader.setFloatUniform("offset", 0.0f, 0.0f);
             shader.setFloatUniform("cornerRadii", new float[]{r, r, r, r});
             shader.setFloatUniform("refractionHeight", r * 0.95f);
             shader.setFloatUniform("refractionAmount", -r * 0.50f * Math.max(0.2f, refractionStrength));
@@ -307,7 +307,8 @@ public class KyantGlassEngine {
 
             canvas.save();
             canvas.clipPath(pillPath);
-            canvas.drawRoundRect(capsuleRect, r, r, agslPaint);
+            canvas.translate(capsuleRect.left, capsuleRect.top);
+            canvas.drawRoundRect(0, 0, w, h, r, r, agslPaint);
             canvas.restore();
             return true;
         } catch (Throwable t) {
@@ -323,35 +324,39 @@ public class KyantGlassEngine {
         int cornerAlpha = (int) (Math.min(1.0f, rimLightStrength * 1.25f) * 220);
         int borderAlpha = (int) (Math.min(1.0f, rimLightStrength) * 170);
 
+        float h = capsuleRect.height();
+        float strokeScale = Math.max(1.0f, h / 36.0f);
+
         // 1. Full perimeter glass stroke (Uniform luminous translucent white, NO black at bottom)
         borderPaint.setShader(null);
         borderPaint.setColor(Color.argb(borderAlpha, 255, 255, 255));
-        borderPaint.setStrokeWidth(0.9f);
+        borderPaint.setStrokeWidth(1.0f * strokeScale);
         canvas.drawRoundRect(capsuleRect, r, r, borderPaint);
 
         highlightPaint.setStyle(Paint.Style.STROKE);
         highlightPaint.setShader(null);
         highlightPaint.setColor(Color.argb(cornerAlpha, 255, 255, 255));
-        highlightPaint.setStrokeWidth(1.5f);
+        highlightPaint.setStrokeWidth(1.6f * strokeScale);
 
         // 2. Left corner specular crescent arc (Viền sáng góc trái iPhone)
+        float inset = 1.0f * strokeScale;
         RectF leftArcRect = new RectF(
-                capsuleRect.left + 0.9f, capsuleRect.top + 0.9f,
-                capsuleRect.left + 2 * r - 0.9f, capsuleRect.bottom - 0.9f
+                capsuleRect.left + inset, capsuleRect.top + inset,
+                capsuleRect.left + 2 * r - inset, capsuleRect.bottom - inset
         );
         canvas.drawArc(leftArcRect, 110, 140, false, highlightPaint);
 
         // 3. Right corner specular crescent arc (Viền sáng góc phải iPhone)
         RectF rightArcRect = new RectF(
-                capsuleRect.right - 2 * r + 0.9f, capsuleRect.top + 0.9f,
-                capsuleRect.right - 0.9f, capsuleRect.bottom - 0.9f
+                capsuleRect.right - 2 * r + inset, capsuleRect.top + inset,
+                capsuleRect.right - inset, capsuleRect.bottom - inset
         );
         canvas.drawArc(rightArcRect, 290, 140, false, highlightPaint);
 
         // 4. Top rim specular sheen line
-        highlightPaint.setStrokeWidth(1.2f);
+        highlightPaint.setStrokeWidth(1.2f * strokeScale);
         highlightPaint.setColor(Color.argb((int) (cornerAlpha * 0.90f), 255, 255, 255));
-        canvas.drawLine(capsuleRect.left + r, capsuleRect.top + 1.0f, capsuleRect.right - r, capsuleRect.top + 1.0f, highlightPaint);
+        canvas.drawLine(capsuleRect.left + r, capsuleRect.top + inset, capsuleRect.right - r, capsuleRect.top + inset, highlightPaint);
     }
 
     /**

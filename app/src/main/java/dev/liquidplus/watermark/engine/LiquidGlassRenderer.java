@@ -39,9 +39,11 @@ public class LiquidGlassRenderer {
         Bitmap result = source.copy(Bitmap.Config.ARGB_8888, true);
         Canvas canvas = new Canvas(result);
 
-        // Calculate proportional scale based on photo dimensions (standard 1080p base)
-        float baseDim = Math.min(width, height);
-        float scale = Math.max(1.0f, baseDim / 1080.0f) * config.scale;
+        // Calculate proportional scale so that the exported watermark matches the exact visual
+        // proportion on the photo as seen in the editor preview (based on a standard ~360dp reference width)
+        float refBaseDim = Math.min(width, height * 1.5f);
+        float scale = (refBaseDim / 360.0f) * (config.scale > 0 ? config.scale : 1.0f);
+        scale = Math.max(1.0f, scale);
 
         // Fonts
         Typeface fontRegular, fontMedium, fontBold;
@@ -85,8 +87,8 @@ public class LiquidGlassRenderer {
         float capsuleH = 36f * scale;
 
         // Position on photo (3 fixed modes: Left, Center, Right)
-        float marginX = 24f * scale;
-        float marginY = 28f * scale;
+        float marginX = 14f * scale;
+        float marginY = 16f * scale;
         float left;
 
         if (WatermarkConfig.ALIGN_LEFT.equalsIgnoreCase(config.watermarkAlignment)) {
@@ -100,8 +102,8 @@ public class LiquidGlassRenderer {
         float top = height - capsuleH - marginY;
 
         // Clamp inside photo bounds
-        left = Math.max(8f * scale, Math.min(left, width - capsuleW - 8f * scale));
-        top = Math.max(8f * scale, Math.min(top, height - capsuleH - 8f * scale));
+        left = Math.max(4f * scale, Math.min(left, width - capsuleW - 4f * scale));
+        top = Math.max(4f * scale, Math.min(top, height - capsuleH - 4f * scale));
 
         RectF capsuleRect = new RectF(left, top, left + capsuleW, top + capsuleH);
 
@@ -218,7 +220,7 @@ public class LiquidGlassRenderer {
 
     public static Uri saveToGallery(Context context, Bitmap bitmap, int quality) {
         String filename = "LiquidWatermark_" + System.currentTimeMillis() + ".jpg";
-        OutputStream fos;
+        OutputStream fos = null;
         Uri imageUri = null;
 
         try {
@@ -227,6 +229,7 @@ public class LiquidGlassRenderer {
                 values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
                 values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LiquidWatermark");
+                values.put(MediaStore.Images.Media.IS_PENDING, 1);
 
                 imageUri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                 if (imageUri != null) {
@@ -235,7 +238,11 @@ public class LiquidGlassRenderer {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, fos);
                         fos.flush();
                         fos.close();
+                        fos = null;
                     }
+                    values.clear();
+                    values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                    context.getContentResolver().update(imageUri, values, null, null);
                 }
             } else {
                 File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "LiquidWatermark");
@@ -245,10 +252,22 @@ public class LiquidGlassRenderer {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, fos);
                 fos.flush();
                 fos.close();
+                fos = null;
                 imageUri = Uri.fromFile(imageFile);
+
+                android.media.MediaScannerConnection.scanFile(
+                        context,
+                        new String[]{imageFile.getAbsolutePath()},
+                        new String[]{"image/jpeg"},
+                        null
+                );
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try { fos.close(); } catch (Exception ignored) {}
+            }
         }
 
         return imageUri;

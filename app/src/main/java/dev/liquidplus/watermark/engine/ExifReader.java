@@ -134,4 +134,40 @@ public class ExifReader {
 
         return data;
     }
+
+    public static android.graphics.Bitmap loadOrientedBitmap(Context context, Uri uri) {
+        if (uri == null) return null;
+        try (InputStream in = context.getContentResolver().openInputStream(uri)) {
+            if (in == null) return null;
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(in);
+            if (bitmap == null) return null;
+
+            try (InputStream inExif = context.getContentResolver().openInputStream(uri)) {
+                if (inExif != null) {
+                    ExifInterface exif = new ExifInterface(inExif);
+                    int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    int rotation = 0;
+                    switch (orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90: rotation = 90; break;
+                        case ExifInterface.ORIENTATION_ROTATE_180: rotation = 180; break;
+                        case ExifInterface.ORIENTATION_ROTATE_270: rotation = 270; break;
+                    }
+                    if (rotation != 0) {
+                        android.graphics.Matrix m = new android.graphics.Matrix();
+                        m.postRotate(rotation);
+                        android.graphics.Bitmap rotated = android.graphics.Bitmap.createBitmap(
+                                bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+                        if (rotated != bitmap) {
+                            bitmap.recycle();
+                            bitmap = rotated;
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {}
+            return bitmap;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
