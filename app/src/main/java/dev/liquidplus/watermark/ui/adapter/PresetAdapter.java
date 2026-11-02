@@ -54,23 +54,8 @@ public class PresetAdapter extends RecyclerView.Adapter<PresetAdapter.ViewHolder
         holder.tvShareCode.setText("#" + p.shareCode);
 
         // Logo
-        int resId = R.drawable.ic_brand_leica;
-        if (p.config != null && p.config.brandLogo != null) {
-            switch (p.config.brandLogo) {
-                case "hasselblad":
-                    resId = R.drawable.ic_brand_hasselblad;
-                    break;
-                case "apple":
-                    resId = R.drawable.ic_brand_apple;
-                    break;
-                case "xiaomi":
-                    resId = R.drawable.ic_brand_xiaomi;
-                    break;
-                case "sony":
-                    resId = R.drawable.ic_brand_sony;
-                    break;
-            }
-        }
+        int resId = dev.liquidplus.watermark.ui.view.LiquidGlassView.getBrandDrawableRes(p.config != null ? p.config.brandLogo : null);
+        if (resId == 0) resId = R.drawable.ic_brand_xiaomi;
         holder.ivPresetLogo.setImageDrawable(ContextCompat.getDrawable(context, resId));
 
         holder.btnApply.setOnClickListener(v -> {

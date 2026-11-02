@@ -51,7 +51,7 @@ public class PresetStore {
         c1.brandLogo = "leica";
         c1.deviceModel = "Xiaomi 14 Ultra";
         c1.cameraParams = "23mm · f/1.63 · ISO 50";
-        c1.dateTime = "2026.09.05";
+        c1.dateTime = "2026.01.01";
         c1.blurStrength = 0.65f;
         c1.refractionStrength = 0.80f;
         presets.add(new WatermarkPreset("Leica Master Pill", "849204821", c1));
@@ -61,7 +61,7 @@ public class PresetStore {
         c2.brandLogo = "hasselblad";
         c2.deviceModel = "OnePlus 12 Pro";
         c2.cameraParams = "70mm · f/2.6 · ISO 100";
-        c2.dateTime = "2026.08.15";
+        c2.dateTime = "2026.01.01";
         c2.blurStrength = 0.50f;
         c2.refractionStrength = 0.70f;
         presets.add(new WatermarkPreset("Hasselblad Natural Color", "739104822", c2));
@@ -81,7 +81,7 @@ public class PresetStore {
         c4.brandLogo = "xiaomi";
         c4.deviceModel = "Redmi 10";
         c4.cameraParams = "35mm · f/1.8 · ISO 100";
-        c4.dateTime = "2026.09.05";
+        c4.dateTime = "2026.01.01";
         c4.blurStrength = 0.60f;
         c4.refractionStrength = 0.75f;
         presets.add(new WatermarkPreset("Redmi 10 Sunset Lake", "592019482", c4));

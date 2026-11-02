@@ -212,26 +212,8 @@ public class LiquidGlassRenderer {
 
     private static Drawable getBrandDrawable(Context context, String brandKey) {
         if ("custom".equals(brandKey) || brandKey == null) return null;
-        int resId;
-        switch (brandKey.toLowerCase(Locale.US)) {
-            case "hasselblad":
-                resId = R.drawable.ic_brand_hasselblad;
-                break;
-            case "apple":
-                resId = R.drawable.ic_brand_apple;
-                break;
-            case "xiaomi":
-                resId = R.drawable.ic_brand_xiaomi;
-                break;
-            case "sony":
-                resId = R.drawable.ic_brand_sony;
-                break;
-            case "leica":
-            default:
-                resId = R.drawable.ic_brand_leica;
-                break;
-        }
-        return ContextCompat.getDrawable(context, resId);
+        int resId = dev.liquidplus.watermark.ui.view.LiquidGlassView.getBrandDrawableRes(brandKey);
+        return resId != 0 ? ContextCompat.getDrawable(context, resId) : null;
     }
 
     public static Uri saveToGallery(Context context, Bitmap bitmap, int quality) {

@@ -16,6 +16,7 @@ public class ExifReader {
         public String deviceModel = "";
         public String cameraParams = "";
         public String dateTime = "";
+        public String brandKey = null;
     }
 
     public static ExifData readFromUri(Context context, Uri uri) {
@@ -26,13 +27,46 @@ public class ExifReader {
             if (in == null) return data;
             ExifInterface exif = new ExifInterface(in);
 
-            // 1. Device Model
+            // 1. Device Model & Brand Detection
             String model = exif.getAttribute(ExifInterface.TAG_MODEL);
             String make = exif.getAttribute(ExifInterface.TAG_MAKE);
             if (model != null && !model.trim().isEmpty()) {
                 data.deviceModel = model.trim();
             } else if (make != null && !make.trim().isEmpty()) {
                 data.deviceModel = make.trim();
+            }
+
+            String searchBrand = ((make != null ? make : "") + " " + (model != null ? model : "")).toLowerCase(Locale.US);
+            if (searchBrand.contains("xiaomi") || searchBrand.contains("redmi") || searchBrand.contains("poco")) {
+                data.brandKey = "xiaomi";
+            } else if (searchBrand.contains("apple") || searchBrand.contains("iphone")) {
+                data.brandKey = "apple";
+            } else if (searchBrand.contains("samsung")) {
+                data.brandKey = "samsung";
+            } else if (searchBrand.contains("sony")) {
+                data.brandKey = "sony";
+            } else if (searchBrand.contains("huawei") || searchBrand.contains("honor")) {
+                data.brandKey = "huawei";
+            } else if (searchBrand.contains("pixel") || searchBrand.contains("google")) {
+                data.brandKey = "google";
+            } else if (searchBrand.contains("oneplus")) {
+                data.brandKey = "hasselblad";
+            } else if (searchBrand.contains("oppo")) {
+                data.brandKey = "oppo";
+            } else if (searchBrand.contains("vivo") || searchBrand.contains("iqoo")) {
+                data.brandKey = "vivo";
+            } else if (searchBrand.contains("leica")) {
+                data.brandKey = "leica";
+            } else if (searchBrand.contains("zeiss")) {
+                data.brandKey = "zeiss";
+            } else if (searchBrand.contains("hasselblad")) {
+                data.brandKey = "hasselblad";
+            } else if (searchBrand.contains("nikon")) {
+                data.brandKey = "nikon";
+            } else if (searchBrand.contains("canon")) {
+                data.brandKey = "canon";
+            } else if (searchBrand.contains("fuji")) {
+                data.brandKey = "fujifilm";
             }
 
             // 2. Camera Specs: Focal Length, Aperture, ISO, Shutter Speed

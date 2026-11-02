@@ -41,11 +41,20 @@ public class BrandLogoAdapter extends RecyclerView.Adapter<BrandLogoAdapter.View
         this.selectedKey = selectedKey;
         this.listener = listener;
 
+        items.add(new BrandItem("xiaomi", R.drawable.ic_brand_xiaomi));
         items.add(new BrandItem("leica", R.drawable.ic_brand_leica));
         items.add(new BrandItem("hasselblad", R.drawable.ic_brand_hasselblad));
+        items.add(new BrandItem("zeiss", R.drawable.ic_brand_zeiss));
         items.add(new BrandItem("apple", R.drawable.ic_brand_apple));
-        items.add(new BrandItem("xiaomi", R.drawable.ic_brand_xiaomi));
         items.add(new BrandItem("sony", R.drawable.ic_brand_sony));
+        items.add(new BrandItem("samsung", R.drawable.ic_brand_samsung));
+        items.add(new BrandItem("huawei", R.drawable.ic_brand_huawei));
+        items.add(new BrandItem("google", R.drawable.ic_brand_google));
+        items.add(new BrandItem("oppo", R.drawable.ic_brand_oppo));
+        items.add(new BrandItem("vivo", R.drawable.ic_brand_vivo));
+        items.add(new BrandItem("nikon", R.drawable.ic_brand_nikon));
+        items.add(new BrandItem("canon", R.drawable.ic_brand_canon));
+        items.add(new BrandItem("fujifilm", R.drawable.ic_brand_fujifilm));
     }
 
     public void setSelectedKey(String key) {

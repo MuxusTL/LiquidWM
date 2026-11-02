@@ -23,6 +23,8 @@ import dev.liquidplus.watermark.R;
 import dev.liquidplus.watermark.engine.KyantGlassEngine;
 import dev.liquidplus.watermark.model.WatermarkConfig;
 
+import java.util.Locale;
+
 public class LiquidGlassView extends View {
 
     private WatermarkConfig config = new WatermarkConfig();
@@ -123,31 +125,52 @@ public class LiquidGlassView extends View {
         invalidate();
     }
 
-    private void updateBrandLogo() {
-        if ("custom".equals(config.brandLogo)) {
-            brandDrawable = null;
-            return;
-        }
-        int resId;
-        switch (config.brandLogo) {
+    public static int getBrandDrawableRes(String brandKey) {
+        if (brandKey == null || "custom".equalsIgnoreCase(brandKey)) return 0;
+        switch (brandKey.toLowerCase(Locale.US)) {
             case "hasselblad":
-                resId = R.drawable.ic_brand_hasselblad;
-                break;
+                return R.drawable.ic_brand_hasselblad;
             case "apple":
-                resId = R.drawable.ic_brand_apple;
-                break;
-            case "xiaomi":
-                resId = R.drawable.ic_brand_xiaomi;
-                break;
+            case "iphone":
+                return R.drawable.ic_brand_apple;
             case "sony":
-                resId = R.drawable.ic_brand_sony;
-                break;
+                return R.drawable.ic_brand_sony;
+            case "zeiss":
+                return R.drawable.ic_brand_zeiss;
+            case "samsung":
+                return R.drawable.ic_brand_samsung;
+            case "huawei":
+            case "honor":
+                return R.drawable.ic_brand_huawei;
+            case "google":
+            case "pixel":
+                return R.drawable.ic_brand_google;
+            case "oppo":
+            case "oneplus":
+                return R.drawable.ic_brand_oppo;
+            case "vivo":
+            case "iqoo":
+                return R.drawable.ic_brand_vivo;
+            case "nikon":
+                return R.drawable.ic_brand_nikon;
+            case "canon":
+                return R.drawable.ic_brand_canon;
+            case "fujifilm":
+            case "fuji":
+                return R.drawable.ic_brand_fujifilm;
             case "leica":
+                return R.drawable.ic_brand_leica;
+            case "xiaomi":
+            case "redmi":
+            case "poco":
             default:
-                resId = R.drawable.ic_brand_leica;
-                break;
+                return R.drawable.ic_brand_xiaomi;
         }
-        brandDrawable = ContextCompat.getDrawable(getContext(), resId);
+    }
+
+    private void updateBrandLogo() {
+        int resId = getBrandDrawableRes(config.brandLogo);
+        brandDrawable = resId != 0 ? ContextCompat.getDrawable(getContext(), resId) : null;
     }
 
     @Override

@@ -178,6 +178,11 @@ public class EditorActivity extends AppCompatActivity {
                 if (exif.dateTime != null && !exif.dateTime.isEmpty()) {
                     config.dateTime = exif.dateTime;
                 }
+                if (exif.brandKey != null && !"custom".equals(config.brandLogo)) {
+                    config.brandLogo = exif.brandKey;
+                    if (logoAdapter != null) logoAdapter.setSelectedKey(config.brandLogo);
+                    tvLogoStatus.setText(getString(R.string.custom_image_selected, config.brandLogo.toUpperCase(Locale.US)));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -185,7 +190,7 @@ public class EditorActivity extends AppCompatActivity {
 
         // Fallback: load sample landscape image
         if (sourceBitmap == null) {
-            try (InputStream in = getAssets().open("sample_landscape.jpg")) {
+            try (InputStream in = getAssets().open("sample_landscape.png")) {
                 sourceBitmap = BitmapFactory.decodeStream(in);
                 ivPreviewMedia.setImageBitmap(sourceBitmap);
             } catch (Exception e) {
@@ -232,9 +237,32 @@ public class EditorActivity extends AppCompatActivity {
         }));
 
         findViewById(R.id.btnDetectDevice).setOnClickListener(v -> {
-            String detected = Build.MANUFACTURER.substring(0, 1).toUpperCase(Locale.US) +
-                    Build.MANUFACTURER.substring(1) + " " + Build.MODEL;
-            etDeviceModel.setText(detected);
+            String mfg = Build.MANUFACTURER != null ? Build.MANUFACTURER.toLowerCase(Locale.US) : "";
+            String detected = (Build.MANUFACTURER != null && !Build.MANUFACTURER.isEmpty() ?
+                    Build.MANUFACTURER.substring(0, 1).toUpperCase(Locale.US) + Build.MANUFACTURER.substring(1) : "") + " " + Build.MODEL;
+            etDeviceModel.setText(detected.trim());
+            if (mfg.contains("xiaomi") || mfg.contains("redmi") || mfg.contains("poco")) {
+                config.brandLogo = "xiaomi";
+            } else if (mfg.contains("apple")) {
+                config.brandLogo = "apple";
+            } else if (mfg.contains("samsung")) {
+                config.brandLogo = "samsung";
+            } else if (mfg.contains("sony")) {
+                config.brandLogo = "sony";
+            } else if (mfg.contains("huawei") || mfg.contains("honor")) {
+                config.brandLogo = "huawei";
+            } else if (mfg.contains("google")) {
+                config.brandLogo = "google";
+            } else if (mfg.contains("oppo")) {
+                config.brandLogo = "oppo";
+            } else if (mfg.contains("vivo") || mfg.contains("iqoo")) {
+                config.brandLogo = "vivo";
+            } else if (mfg.contains("oneplus")) {
+                config.brandLogo = "hasselblad";
+            }
+            if (logoAdapter != null) logoAdapter.setSelectedKey(config.brandLogo);
+            liquidGlassWatermark.setConfig(config);
+            tvLogoStatus.setText(getString(R.string.custom_image_selected, config.brandLogo.toUpperCase(Locale.US)));
         });
 
         // Camera Specs input

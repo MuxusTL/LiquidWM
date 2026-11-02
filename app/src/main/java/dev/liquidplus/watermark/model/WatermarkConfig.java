@@ -13,13 +13,13 @@ public class WatermarkConfig implements Serializable {
     public static final String ALIGN_CENTER = "CENTER";
     public static final String ALIGN_RIGHT = "RIGHT";
 
-    public String brandLogo = "leica";
+    public String brandLogo = "Xiaomi";
     public String customLogoUri = null;
     public String logoPosition = POSITION_LEFT; // logo inside watermark (left or right)
     public String watermarkAlignment = ALIGN_CENTER; // watermark on image (left, center, right)
-    public String deviceModel = "Redmi 10";
+    public String deviceModel = "Xiaomi 14 Ultra";
     public String cameraParams = "35mm · f/1.8 · ISO 100";
-    public String dateTime = "2026.09.05";
+    public String dateTime = "2026.01.01";
     public boolean showDateTime = true;
 
     // Liquid Glass Optics
