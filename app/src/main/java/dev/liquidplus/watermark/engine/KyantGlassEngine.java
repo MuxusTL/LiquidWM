@@ -15,6 +15,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * KyantGlassEngine implements the exact optical Liquid Glass refraction, Signed Distance Field (SDF),
@@ -183,31 +184,7 @@ public class KyantGlassEngine {
 
         // Try AGSL GPU Shader on Android 13+
         if (slice != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslRuntimeShader != null) {
-            try {
-                android.graphics.RuntimeShader shader = (android.graphics.RuntimeShader) agslRuntimeShader;
-                BitmapShader bmpShader = new BitmapShader(slice, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                Matrix matrix = new Matrix();
-                matrix.postScale(w / slice.getWidth(), h / slice.getHeight());
-                matrix.postTranslate(capsuleRect.left, capsuleRect.top);
-                bmpShader.setLocalMatrix(matrix);
-
-                shader.setInputShader("content", bmpShader);
-                shader.setFloatUniform("size", w, h);
-                shader.setFloatUniform("offset", -capsuleRect.left, -capsuleRect.top);
-                shader.setFloatUniform("cornerRadii", new float[]{r, r, r, r});
-                shader.setFloatUniform("refractionHeight", r * 0.90f);
-                shader.setFloatUniform("refractionAmount", -r * 0.70f * Math.max(0.2f, refractionStrength));
-                shader.setFloatUniform("depthEffect", 0.35f);
-                shader.setFloatUniform("chromaticAberration", 0.85f);
-
-                canvas.save();
-                canvas.clipPath(pillPath);
-                canvas.drawRoundRect(capsuleRect, r, r, agslPaint);
-                canvas.restore();
-                drewRefraction = true;
-            } catch (Throwable t) {
-                drewRefraction = false;
-            }
+            drewRefraction = drawAgslRefraction(canvas, pillPath, capsuleRect, slice, w, h, r, refractionStrength);
         }
 
         // Software Fallback (Runs on all Android versions & Bitmap exports)
@@ -244,6 +221,35 @@ public class KyantGlassEngine {
 
         // 3. Kyant0 Ambient & Fresnel Specular Highlights (Top Sheen Arc & Rim Glow)
         drawKyantHighlights(canvas, capsuleRect, r, rimLightStrength);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private boolean drawAgslRefraction(Canvas canvas, Path pillPath, RectF capsuleRect, Bitmap slice, float w, float h, float r, float refractionStrength) {
+        try {
+            android.graphics.RuntimeShader shader = (android.graphics.RuntimeShader) agslRuntimeShader;
+            BitmapShader bmpShader = new BitmapShader(slice, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            Matrix matrix = new Matrix();
+            matrix.postScale(w / slice.getWidth(), h / slice.getHeight());
+            matrix.postTranslate(capsuleRect.left, capsuleRect.top);
+            bmpShader.setLocalMatrix(matrix);
+
+            shader.setInputShader("content", bmpShader);
+            shader.setFloatUniform("size", w, h);
+            shader.setFloatUniform("offset", -capsuleRect.left, -capsuleRect.top);
+            shader.setFloatUniform("cornerRadii", new float[]{r, r, r, r});
+            shader.setFloatUniform("refractionHeight", r * 0.90f);
+            shader.setFloatUniform("refractionAmount", -r * 0.70f * Math.max(0.2f, refractionStrength));
+            shader.setFloatUniform("depthEffect", 0.35f);
+            shader.setFloatUniform("chromaticAberration", 0.85f);
+
+            canvas.save();
+            canvas.clipPath(pillPath);
+            canvas.drawRoundRect(capsuleRect, r, r, agslPaint);
+            canvas.restore();
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     /**

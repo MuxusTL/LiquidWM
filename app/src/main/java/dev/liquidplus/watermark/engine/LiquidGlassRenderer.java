@@ -225,35 +225,47 @@ public class LiquidGlassRenderer {
         return ContextCompat.getDrawable(context, resId);
     }
 
-    public static Uri saveBitmapToGallery(Context context, Bitmap bitmap) throws Exception {
-        String filename = "LWM_" + System.currentTimeMillis() + ".jpg";
+    public static Uri saveToGallery(Context context, Bitmap bitmap, int quality) {
+        String filename = "LiquidWatermark_" + System.currentTimeMillis() + ".jpg";
         OutputStream fos;
-        Uri imageUri;
+        Uri imageUri = null;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LiquidWatermark");
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, filename);
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LiquidWatermark");
 
-            imageUri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            if (imageUri == null) throw new Exception("Không thể tạo bản ghi MediaStore");
-            fos = context.getContentResolver().openOutputStream(imageUri);
-        } else {
-            File picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File appDir = new File(picturesDir, "LiquidWatermark");
-            if (!appDir.exists()) appDir.mkdirs();
-            File imageFile = new File(appDir, filename);
-            fos = new FileOutputStream(imageFile);
-            imageUri = Uri.fromFile(imageFile);
-        }
-
-        if (fos != null) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 96, fos);
-            fos.flush();
-            fos.close();
+                imageUri = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                if (imageUri != null) {
+                    fos = context.getContentResolver().openOutputStream(imageUri);
+                    if (fos != null) {
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, fos);
+                        fos.flush();
+                        fos.close();
+                    }
+                }
+            } else {
+                File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "LiquidWatermark");
+                if (!dir.exists()) dir.mkdirs();
+                File imageFile = new File(dir, filename);
+                fos = new FileOutputStream(imageFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, quality, fos);
+                fos.flush();
+                fos.close();
+                imageUri = Uri.fromFile(imageFile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return imageUri;
+    }
+
+    public static Uri saveBitmapToGallery(Context context, Bitmap bitmap) throws Exception {
+        Uri uri = saveToGallery(context, bitmap, 96);
+        if (uri == null) throw new Exception("Không thể tạo bản ghi MediaStore");
+        return uri;
     }
 }
