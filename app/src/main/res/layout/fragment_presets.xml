@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/bg_app">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="40dp">
+
+        <!-- Top Header with Back button & Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+
+            <FrameLayout
+                android:id="@+id/btnBackPresets"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_circle_button"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_back"
+                    app:tint="@color/text_primary" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/presets_title"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter"
+                android:layout_marginStart="14dp" />
+        </LinearLayout>
+
+        <!-- Card 1: Tạo watermark của bạn -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_white"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_create_card_title"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_create_card_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="@font/inter"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="18dp" />
+
+            <!-- Black Button: Cài đặt watermark -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnOpenWatermarkSettings"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_button_black"
+                android:text="@string/btn_watermark_settings"
+                android:textColor="@color/btn_black_text"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter"
+                android:textAllCaps="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_sync_note"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:lineSpacingExtra="2dp"
+                android:fontFamily="@font/inter"
+                android:layout_marginTop="14dp" />
+        </LinearLayout>
+
+        <!-- Card 2: Quản lý & Nhập -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_white"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preset_manage_title"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter" />
+
+            <TextView
+                android:id="@+id/tvSavedCountRatio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã lưu 5/30 cấu hình trên máy."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="@font/inter"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="18dp" />
+
+            <!-- Black Button: Lưu cấu hình hiện tại -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnSaveCurrentPreset"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_button_black"
+                android:text="@string/btn_save_current_preset"
+                android:textColor="@color/btn_black_text"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter"
+                android:textAllCaps="false"
+                android:layout_marginBottom="10dp" />
+
+            <!-- Light Gray Button: Nhập bằng mã chia sẻ -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnImportCode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_button_light"
+                android:text="@string/btn_import_share_code"
+                android:textColor="@color/btn_light_text"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter"
+                android:textAllCaps="false" />
+        </LinearLayout>
+
+        <!-- Section: Cấu hình đã lưu -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/section_saved_presets"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/inter" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/saved_presets_sub"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:fontFamily="@font/inter"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="14dp" />
+
+        <!-- Saved Presets List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSavedPresets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+        <!-- Empty State -->
+        <LinearLayout
+            android:id="@+id/layoutEmptyPresets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_white"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="28dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_presets_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_presets_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:fontFamily="@font/inter"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

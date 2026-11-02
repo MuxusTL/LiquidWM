@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds (Light mode, clean black & white) -->
+    <color name="bg_app">#F7F8FA</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_surface_alt">#F1F2F5</color>
+    <color name="bg_surface_card">#FFFFFF</color>
+    <color name="bg_bottom_nav">#FFFFFF</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#09090B</color>
+    <color name="text_secondary">#71717A</color>
+    <color name="text_muted">#A1A1AA</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <!-- Buttons & Controls -->
+    <color name="btn_black">#09090B</color>
+    <color name="btn_black_ripple">#333333</color>
+    <color name="btn_black_text">#FFFFFF</color>
+
+    <color name="btn_light">#F1F2F5</color>
+    <color name="btn_light_ripple">#E2E4E9</color>
+    <color name="btn_light_text">#18181B</color>
+
+    <!-- Borders & Dividers -->
+    <color name="border_subtle">#E4E4E7</color>
+    <color name="border_card">#ECECF0</color>
+    <color name="border_focused">#09090B</color>
+
+    <!-- Liquid Glass Simulation Colors -->
+    <color name="glass_capsule_tint">#30FFFFFF</color>
+    <color name="glass_rim_light">#D0FFFFFF</color>
+    <color name="glass_rim_dark">#20000000</color>
+    <color name="glass_specular_highlight">#EEFFFFFF</color>
+    <color name="glass_text_primary">#FFFFFF</color>
+    <color name="glass_text_secondary">#E0E0E0</color>
+
+    <!-- Accents -->
+    <color name="accent_active">#09090B</color>
+    <color name="accent_danger">#EF4444</color>
+    <color name="accent_success">#10B981</color>
+</resources>

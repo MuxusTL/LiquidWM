@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Liquid Watermark</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_create">Sáng tạo</string>
+    <string name="nav_presets">Kho cấu hình</string>
+    <string name="nav_explore">Khám phá</string>
+    <string name="nav_settings">Của tôi</string>
+
+    <!-- Home Tab -->
+    <string name="home_title">Liquid Watermark</string>
+    <string name="card_photo_title">Thêm ảnh</string>
+    <string name="card_photo_desc">Thêm thanh watermark Liquid Glass khúc xạ vào ảnh của bạn với độ phân giải gốc.</string>
+    <string name="btn_select_photo">Chọn ảnh</string>
+    <string name="card_video_title">Video watermark</string>
+    <string name="card_video_desc">Hỗ trợ gắn watermark lên video, xem trước độc lập và xuất video giữ nguyên âm thanh.</string>
+    <string name="btn_select_video">Chọn video</string>
+    
+    <string name="section_common_tools">Công cụ thường dùng</string>
+    <string name="tool_my_presets">Kho cấu hình của tôi</string>
+    <string name="tool_my_presets_desc">Đã lưu %1$d cấu hình · Lưu, áp dụng và chia sẻ</string>
+    <string name="tool_explore_presets">Khám phá cấu hình watermark</string>
+    <string name="tool_explore_presets_desc">Duyệt các mẫu watermark công khai, lấy cảm hứng và tạo phong cách</string>
+    <string name="home_footer_note">Tệp gốc luôn được giữ nguyên, lưu thành tệp mới. Đầy đủ quyền sở hữu thuộc về bạn.</string>
+
+    <!-- Presets Tab -->
+    <string name="presets_title">Kho cấu hình</string>
+    <string name="preset_create_card_title">Tạo watermark của bạn</string>
+    <string name="preset_create_card_desc">Cài đặt logo, tên máy và thông số ảnh, sau đó lưu thành cấu hình thường dùng.</string>
+    <string name="btn_watermark_settings">Cài đặt watermark</string>
+    <string name="preset_sync_note">Không cần chọn ảnh trước, với trình chỉnh sửa dùng chung một bộ cài đặt watermark.</string>
+    <string name="preset_manage_title">Quản lý và Nhập</string>
+    <string name="preset_manage_count">Đã lưu %1$d/%2$d cấu hình trên máy.</string>
+    <string name="btn_save_current_preset">Lưu cấu hình hiện tại</string>
+    <string name="btn_import_share_code">Nhập bằng mã 9 chữ số</string>
+    <string name="section_saved_presets">Cấu hình đã lưu</string>
+    <string name="saved_presets_sub">Nhấn vào cấu hình để xem chi tiết, áp dụng, chia sẻ hoặc xóa.</string>
+    <string name="empty_presets_title">Chưa có cấu hình nào được lưu</string>
+    <string name="empty_presets_desc">Lưu lại các thông số watermark thường dùng để lần sáng tạo sau có thể áp dụng ngay.</string>
+
+    <!-- Explore Tab -->
+    <string name="explore_title">Khám phá Watermark</string>
+    <string name="explore_subtitle">Các phong cách Liquid Glass được yêu thích nhất</string>
+    <string name="style_leica">Leica Master Pill</string>
+    <string name="style_leica_desc">Thấu kính quang học mờ nhẹ, biểu tượng Leica cổ điển và thông số tóm tắt.</string>
+    <string name="style_hasselblad">Hasselblad Natural Color</string>
+    <string name="style_hasselblad_desc">Độ phản quang pha lê trong suốt, chữ thanh mảnh tinh tế.</string>
+    <string name="style_apple">Apple Minimal Glass</string>
+    <string name="style_apple_desc">Viên nhộng Liquid Glass bo tròn mềm mại, tối giản tuyệt đối.</string>
+    <string name="style_cyberpunk">Neon Horizon</string>
+    <string name="style_cyberpunk_desc">Viền khúc xạ sắc nét, ánh sáng phản chiếu sống động.</string>
+    <string name="btn_apply_preset">Áp dụng mẫu này</string>
+
+    <!-- Watermark Editor / Content Screen -->
+    <string name="editor_title">Nội dung watermark</string>
+    <string name="editor_subtitle">Tùy biến hình ảnh, tên thiết bị và thông số ảnh chụp.</string>
+    <string name="preview_card_title">Xem trước hiệu ứng động</string>
+    <string name="preview_card_desc">Mẫu trực quan · Hình ảnh, vị trí và văn bản thay đổi tức thì.</string>
+    <string name="btn_pause_preview">Tạm dừng xem trước</string>
+    <string name="btn_resume_preview">Tiếp tục xem trước</string>
+    <string name="preview_note">Chỉ dùng cho xem trước hiệu ứng, không tự động thêm vào thư viện ảnh.</string>
+
+    <string name="section_custom_image">Hình ảnh tùy chỉnh</string>
+    <string name="custom_image_empty">Chưa chọn hình ảnh logo</string>
+    <string name="custom_image_selected">Đã chọn: %1$s</string>
+    <string name="section_image_position">Vị trí hình ảnh</string>
+    <string name="pos_left">Bên trái</string>
+    <string name="pos_right">Bên phải</string>
+
+    <string name="section_device_text">Tên thiết bị</string>
+    <string name="hint_device_text">Nhập tên máy (vd: Redmi 10, Xiaomi 14 Ultra...)</string>
+    <string name="btn_auto_detect_device">Nhận diện thiết bị hiện tại</string>
+
+    <string name="section_camera_params">Thông số ảnh (EXIF)</string>
+    <string name="hint_camera_params">35mm · f/1.8 · ISO 100</string>
+    <string name="btn_read_exif">Tự động đọc từ ảnh đã chọn</string>
+
+    <string name="section_date_time">Ngày giờ chụp</string>
+    <string name="hint_date_time">2026.09.05</string>
+    <string name="btn_use_current_date">Lấy ngày hiện tại</string>
+
+    <string name="section_glass_tuning">Hiệu chỉnh Liquid Glass</string>
+    <string name="label_blur">Độ mờ nền (Blur)</string>
+    <string name="label_refraction">Độ khúc xạ thấu kính</string>
+    <string name="label_rim_light">Ánh phản xạ viền (Rim Light)</string>
+
+    <string name="btn_export">Xuất tệp Watermark</string>
+    <string name="exporting">Đang xử lý xuất tệp...</string>
+    <string name="export_success">Đã lưu tệp vào thư viện!</string>
+    <string name="export_failed">Lỗi khi xuất tệp: %1$s</string>
+
+    <!-- Settings Tab -->
+    <string name="settings_title">Cài đặt</string>
+    <string name="group_language">Ngôn ngữ (Language)</string>
+    <string name="lang_vietnamese">Tiếng Việt</string>
+    <string name="lang_english">English</string>
+    
+    <string name="group_export_quality">Chất lượng xuất ảnh</string>
+    <string name="quality_original">Gốc 100% (Chất lượng tối đa)</string>
+    <string name="quality_high">95% (Cân bằng dung lượng)</string>
+
+    <string name="group_about">Giới thiệu &amp; Hướng dẫn</string>
+    <string name="about_intro">Xem lại bảng giới thiệu</string>
+    <string name="about_version">Phiên bản</string>
+    <string name="version_val">1.0.0 (Liquid Glass AGSL Engine)</string>
+    <string name="about_dev">Phát triển bởi MuxusTL · Hỗ trợ Android 8.0 - 15+</string>
+
+    <!-- Intro Dialog / Onboarding -->
+    <string name="intro_welcome">Chào mừng bạn đến với</string>
+    <string name="intro_app_name">Liquid Watermark</string>
+    <string name="intro_feat_1_title">Hiệu ứng Liquid Glass phản xạ</string>
+    <string name="intro_feat_1_desc">Sử dụng công nghệ mô phỏng khúc xạ ánh sáng và viền quang học chân thực như thấu kính thủy tinh lỏng cao cấp.</string>
+    <string name="intro_feat_2_title">Tự động đọc thông số EXIF</string>
+    <string name="intro_feat_2_desc">Tự động nhận diện tiêu cự, khẩu độ, độ nhạy sáng ISO, tốc độ màn trập và ngày giờ chụp từ ảnh gốc.</string>
+    <string name="intro_feat_3_title">Hỗ trợ song song Ảnh &amp; Video</string>
+    <string name="intro_feat_3_desc">Xuất ảnh ở độ phân giải gốc siêu nét và gắn watermark lên video mà không làm giảm chất lượng âm thanh.</string>
+    <string name="btn_start_experience">Bắt đầu trải nghiệm</string>
+
+    <!-- Dialogs & Prompts -->
+    <string name="dialog_enter_preset_name">Nhập tên cấu hình</string>
+    <string name="dialog_enter_share_code">Nhập mã chia sẻ 9 chữ số</string>
+    <string name="btn_save">Lưu</string>
+    <string name="btn_cancel">Hủy</string>
+    <string name="btn_apply">Áp dụng</string>
+    <string name="btn_share">Chia sẻ</string>
+    <string name="btn_delete">Xóa</string>
+    <string name="toast_saved">Đã lưu cấu hình thành công!</string>
+    <string name="toast_applied">Đã áp dụng cấu hình!</string>
+    <string name="toast_deleted">Đã xóa cấu hình.</string>
+    <string name="toast_code_copied">Đã sao chép mã chia sẻ: %1$s</string>
+    <string name="toast_invalid_code">Mã chia sẻ không hợp lệ hoặc không tìm thấy cấu hình.</string>
+    <string name="select_image_title">Chọn ảnh từ thư viện</string>
+    <string name="select_video_title">Chọn video từ thư viện</string>
+    <string name="select_logo_title">Chọn logo thương hiệu hoặc ảnh riêng</string>
+</resources>

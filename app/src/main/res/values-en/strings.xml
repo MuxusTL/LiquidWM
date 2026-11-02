@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Liquid Watermark</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_create">Create</string>
+    <string name="nav_presets">Presets</string>
+    <string name="nav_explore">Explore</string>
+    <string name="nav_settings">Profile</string>
+
+    <!-- Home Tab -->
+    <string name="home_title">Liquid Watermark</string>
+    <string name="card_photo_title">Add Photo</string>
+    <string name="card_photo_desc">Add refractive Liquid Glass watermark bar to your photos in full native resolution.</string>
+    <string name="btn_select_photo">Select Photo</string>
+    <string name="card_video_title">Video Watermark</string>
+    <string name="card_video_desc">Support video watermarking with real-time live preview and original audio track preserved.</string>
+    <string name="btn_select_video">Select Video</string>
+    
+    <string name="section_common_tools">Common Tools</string>
+    <string name="tool_my_presets">My Preset Library</string>
+    <string name="tool_my_presets_desc">%1$d presets saved · Save, apply and share</string>
+    <string name="tool_explore_presets">Explore Watermark Presets</string>
+    <string name="tool_explore_presets_desc">Browse public watermark templates, get inspiration and style</string>
+    <string name="home_footer_note">Original files are kept unchanged, saved as new files. Full ownership belongs to you.</string>
+
+    <!-- Presets Tab -->
+    <string name="presets_title">Presets Library</string>
+    <string name="preset_create_card_title">Build Your Watermark</string>
+    <string name="preset_create_card_desc">Configure logo, device name and camera parameters, then save as a favorite preset.</string>
+    <string name="btn_watermark_settings">Watermark Settings</string>
+    <string name="preset_sync_note">No need to select a photo first; the editor shares the same watermark configuration.</string>
+    <string name="preset_manage_title">Manage &amp; Import</string>
+    <string name="preset_manage_count">%1$d/%2$d presets saved on device.</string>
+    <string name="btn_save_current_preset">Save Current Preset</string>
+    <string name="btn_import_share_code">Import via 9-Digit Code</string>
+    <string name="section_saved_presets">Saved Presets</string>
+    <string name="saved_presets_sub">Tap a preset to view details, apply, share, or delete.</string>
+    <string name="empty_presets_title">No presets saved yet</string>
+    <string name="empty_presets_desc">Save your favorite watermark parameters to quickly apply them during your next creations.</string>
+
+    <!-- Explore Tab -->
+    <string name="explore_title">Explore Watermarks</string>
+    <string name="explore_subtitle">Most popular Liquid Glass design styles</string>
+    <string name="style_leica">Leica Master Pill</string>
+    <string name="style_leica_desc">Soft optical frosted lens, vintage Leica script and compact parameter summary.</string>
+    <string name="style_hasselblad">Hasselblad Natural Color</string>
+    <string name="style_hasselblad_desc">Crystal clear transparency with high specular reflection and clean typography.</string>
+    <string name="style_apple">Apple Minimal Glass</string>
+    <string name="style_apple_desc">Smooth rounded capsule with refractive optics and ultra-minimal aesthetics.</string>
+    <string name="style_cyberpunk">Neon Horizon</string>
+    <string name="style_cyberpunk_desc">Sharp refraction rim with vivid ambient specular highlights.</string>
+    <string name="btn_apply_preset">Apply This Style</string>
+
+    <!-- Watermark Editor / Content Screen -->
+    <string name="editor_title">Watermark Content</string>
+    <string name="editor_subtitle">Customize brand icon, device name and camera shooting parameters.</string>
+    <string name="preview_card_title">Live Dynamic Preview</string>
+    <string name="preview_card_desc">Visual sample · Images, positions and parameters update in real time.</string>
+    <string name="btn_pause_preview">Pause Preview</string>
+    <string name="btn_resume_preview">Resume Preview</string>
+    <string name="preview_note">Used for effect preview only, will not automatically save to your photo album.</string>
+
+    <string name="section_custom_image">Custom Image</string>
+    <string name="custom_image_empty">No custom logo selected</string>
+    <string name="custom_image_selected">Selected: %1$s</string>
+    <string name="section_image_position">Image Position</string>
+    <string name="pos_left">Left Side</string>
+    <string name="pos_right">Right Side</string>
+
+    <string name="section_device_text">Device Name</string>
+    <string name="hint_device_text">Enter model name (e.g. Redmi 10, Xiaomi 14 Ultra...)</string>
+    <string name="btn_auto_detect_device">Auto-Detect Current Device</string>
+
+    <string name="section_camera_params">Camera Specs (EXIF)</string>
+    <string name="hint_camera_params">35mm · f/1.8 · ISO 100</string>
+    <string name="btn_read_exif">Auto-Read from Selected Photo</string>
+
+    <string name="section_date_time">Date &amp; Time</string>
+    <string name="hint_date_time">2026.09.05</string>
+    <string name="btn_use_current_date">Use Current Date</string>
+
+    <string name="section_glass_tuning">Liquid Glass Tuning</string>
+    <string name="label_blur">Backdrop Blur</string>
+    <string name="label_refraction">Optical Refraction</string>
+    <string name="label_rim_light">Rim Specular Light</string>
+
+    <string name="btn_export">Export Watermarked File</string>
+    <string name="exporting">Processing export...</string>
+    <string name="export_success">Saved to gallery successfully!</string>
+    <string name="export_failed">Export failed: %1$s</string>
+
+    <!-- Settings Tab -->
+    <string name="settings_title">Settings</string>
+    <string name="group_language">Language</string>
+    <string name="lang_vietnamese">Tiếng Việt (Vietnamese)</string>
+    <string name="lang_english">English</string>
+    
+    <string name="group_export_quality">Export Photo Quality</string>
+    <string name="quality_original">Original 100% (Maximum Quality)</string>
+    <string name="quality_high">95% (Balanced Size)</string>
+
+    <string name="group_about">About &amp; Intro</string>
+    <string name="about_intro">View Welcome Intro</string>
+    <string name="about_version">Version</string>
+    <string name="version_val">1.0.0 (Liquid Glass AGSL Engine)</string>
+    <string name="about_dev">Developed by MuxusTL · Supports Android 8.0 - 15+</string>
+
+    <!-- Intro Dialog / Onboarding -->
+    <string name="intro_welcome">Welcome to</string>
+    <string name="intro_app_name">Liquid Watermark</string>
+    <string name="intro_feat_1_title">Realistic Liquid Glass Optics</string>
+    <string name="intro_feat_1_desc">Simulates physical light refraction, convex lens distortion, and specular highlights modeled after modern iOS glass aesthetics.</string>
+    <string name="intro_feat_2_title">Automatic EXIF Metadata Parsing</string>
+    <string name="intro_feat_2_desc">Automatically extracts focal length, aperture, ISO, shutter speed, and timestamp from your original photography.</string>
+    <string name="intro_feat_3_title">Photo &amp; Video Support</string>
+    <string name="intro_feat_3_desc">Render crystal clear full-resolution images and stamp watermarks onto videos with no loss of audio quality.</string>
+    <string name="btn_start_experience">Get Started</string>
+
+    <!-- Dialogs & Prompts -->
+    <string name="dialog_enter_preset_name">Enter preset name</string>
+    <string name="dialog_enter_share_code">Enter 9-digit share code</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_apply">Apply</string>
+    <string name="btn_share">Share</string>
+    <string name="btn_delete">Delete</string>
+    <string name="toast_saved">Preset saved successfully!</string>
+    <string name="toast_applied">Preset applied!</string>
+    <string name="toast_deleted">Preset deleted.</string>
+    <string name="toast_code_copied">Share code copied: %1$s</string>
+    <string name="toast_invalid_code">Invalid share code or preset not found.</string>
+    <string name="select_image_title">Select image from gallery</string>
+    <string name="select_video_title">Select video from gallery</string>
+    <string name="select_logo_title">Choose brand logo or custom image</string>
+</resources>
