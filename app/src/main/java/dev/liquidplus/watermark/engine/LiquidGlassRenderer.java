@@ -31,16 +31,29 @@ public class LiquidGlassRenderer {
 
     public static Bitmap renderWatermark(Context context, Bitmap source, WatermarkConfig config, Bitmap customLogo) {
         if (source == null || config == null) return source;
-
         int width = source.getWidth();
         int height = source.getHeight();
 
-        // Create mutable copy with same dimensions
         Bitmap result = source.copy(Bitmap.Config.ARGB_8888, true);
         Canvas canvas = new Canvas(result);
+        drawWatermarkToCanvas(context, canvas, width, height, config, customLogo, source);
+        return result;
+    }
 
+    /**
+     * Renders a transparent overlay Bitmap with the exact watermark positioned for video watermarking.
+     */
+    public static Bitmap renderWatermarkOverlay(Context context, int width, int height, WatermarkConfig config, Bitmap customLogo) {
+        if (width <= 0 || height <= 0 || config == null) return null;
+        Bitmap overlay = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(overlay);
+        drawWatermarkToCanvas(context, canvas, width, height, config, customLogo, null);
+        return overlay;
+    }
+
+    private static void drawWatermarkToCanvas(Context context, Canvas canvas, int width, int height, WatermarkConfig config, Bitmap customLogo, @Nullable Bitmap backdropSource) {
         // Calculate proportional scale so that the exported watermark matches the exact visual
-        // proportion on the photo as seen in the editor preview (based on a standard ~360dp reference width)
+        // proportion on the photo/video as seen in the editor preview (based on a standard ~360dp reference width)
         float refBaseDim = Math.min(width, height * 1.5f);
         float scale = (refBaseDim / 360.0f) * (config.scale > 0 ? config.scale : 1.0f);
         scale = Math.max(1.0f, scale);
@@ -86,7 +99,7 @@ public class LiquidGlassRenderer {
         // Sleek capsule height matching Photo Watermark
         float capsuleH = 36f * scale;
 
-        // Position on photo (3 fixed modes: Left, Center, Right)
+        // Position on photo/video (3 fixed modes: Left, Center, Right)
         float marginX = 14f * scale;
         float marginY = 16f * scale;
         float left;
@@ -101,7 +114,7 @@ public class LiquidGlassRenderer {
         }
         float top = height - capsuleH - marginY;
 
-        // Clamp inside photo bounds
+        // Clamp inside bounds
         left = Math.max(4f * scale, Math.min(left, width - capsuleW - 4f * scale));
         top = Math.max(4f * scale, Math.min(top, height - capsuleH - 4f * scale));
 
@@ -112,7 +125,7 @@ public class LiquidGlassRenderer {
         glassEngine.drawLiquidGlass(
                 canvas,
                 capsuleRect,
-                source,
+                backdropSource,
                 capsuleRect,
                 config.blurStrength,
                 config.refractionStrength,
@@ -208,8 +221,6 @@ public class LiquidGlassRenderer {
             }
             textSubPaint.setTextAlign(Paint.Align.LEFT);
         }
-
-        return result;
     }
 
     private static Drawable getBrandDrawable(Context context, String brandKey) {

@@ -17,6 +17,17 @@
     <string name="card_video_title">Video watermark</string>
     <string name="card_video_desc">Hỗ trợ gắn watermark lên video, xem trước độc lập và xuất video giữ nguyên âm thanh.</string>
     <string name="btn_select_video">Chọn video</string>
+
+    <!-- Quick 1-Tap Watermark -->
+    <string name="card_quick_title">⚡ Chèn Nhanh 1 Chạm</string>
+    <string name="card_quick_desc">Tự động nhận diện thiết bị &amp; EXIF, gắn Watermark Liquid Glass và lưu thẳng vào Thư viện tức thì không cần mở Editor.</string>
+    <string name="btn_quick_photo">⚡ Chèn nhanh Ảnh</string>
+    <string name="btn_quick_video">⚡ Chèn nhanh Video</string>
+    <string name="quick_processing_title">Đang chèn Watermark...</string>
+    <string name="quick_processing_photo">Đang xử lý ảnh %1$d/%2$d...</string>
+    <string name="quick_processing_video">Đang xuất video (%1$d%%)...</string>
+    <string name="quick_photo_success">Đã lưu thành công %1$d ảnh vào Thư viện (Pictures/LiquidWatermark)!</string>
+    <string name="quick_video_success">Đã lưu thành công video vào Thư viện (Movies/LiquidWatermark)!</string>
     
     <string name="section_common_tools">Công cụ thường dùng</string>
     <string name="tool_my_presets">Kho cấu hình của tôi</string>

@@ -26,13 +26,19 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Bitmap;
+import android.os.Build;
 import java.util.List;
+import java.util.Locale;
 
+import dev.liquidplus.watermark.engine.LiquidGlassRenderer;
+import dev.liquidplus.watermark.engine.VideoWatermarkProcessor;
 import dev.liquidplus.watermark.model.PresetStore;
 import dev.liquidplus.watermark.model.WatermarkConfig;
 import dev.liquidplus.watermark.model.WatermarkPreset;
 import dev.liquidplus.watermark.ui.adapter.PresetAdapter;
 import dev.liquidplus.watermark.ui.dialog.IntroDialog;
+import dev.liquidplus.watermark.util.ExifReader;
 import dev.liquidplus.watermark.util.LocaleHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -66,6 +72,16 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(EditorActivity.EXTRA_MEDIA_URI, uri.toString());
                     intent.putExtra(EditorActivity.EXTRA_MEDIA_TYPE, "video");
                     startActivity(intent);
+                }
+            });
+
+    private final ActivityResultLauncher<String> quickPhotoPickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetMultipleContents(), this::handleQuickPhotos);
+
+    private final ActivityResultLauncher<String> quickVideoPickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    handleQuickVideo(uri);
                 }
             });
 
@@ -203,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
     private void setupHomeTab(View root) {
         AppCompatButton btnSelectPhoto = root.findViewById(R.id.btnSelectPhoto);
         AppCompatButton btnSelectVideo = root.findViewById(R.id.btnSelectVideo);
+        AppCompatButton btnQuickPhoto = root.findViewById(R.id.btnQuickPhoto);
+        AppCompatButton btnQuickVideo = root.findViewById(R.id.btnQuickVideo);
         View btnToolMyPresets = root.findViewById(R.id.btnToolMyPresets);
         View btnToolExplore = root.findViewById(R.id.btnToolExplore);
         TextView tvPresetsCountDesc = root.findViewById(R.id.tvPresetsCountDesc);
@@ -213,8 +231,158 @@ public class MainActivity extends AppCompatActivity {
         btnSelectPhoto.setOnClickListener(v -> photoPickerLauncher.launch("image/*"));
         btnSelectVideo.setOnClickListener(v -> videoPickerLauncher.launch("video/*"));
 
+        if (btnQuickPhoto != null) {
+            btnQuickPhoto.setOnClickListener(v -> quickPhotoPickerLauncher.launch("image/*"));
+        }
+        if (btnQuickVideo != null) {
+            btnQuickVideo.setOnClickListener(v -> quickVideoPickerLauncher.launch("video/*"));
+        }
+
         btnToolMyPresets.setOnClickListener(v -> switchTab(1));
         btnToolExplore.setOnClickListener(v -> switchTab(2));
+    }
+
+    private WatermarkConfig getQuickWatermarkConfig() {
+        WatermarkConfig config = presetStore.getActiveConfig();
+        if (config == null) {
+            config = new WatermarkConfig();
+        }
+        if (config.deviceModel == null || config.deviceModel.isEmpty()) {
+            String mfg = (Build.MANUFACTURER != null ? Build.MANUFACTURER.toLowerCase(Locale.US) : "");
+            config.deviceModel = (Build.MANUFACTURER != null && !Build.MANUFACTURER.isEmpty() ?
+                    Build.MANUFACTURER.substring(0, 1).toUpperCase(Locale.US) + Build.MANUFACTURER.substring(1) : "") + " " + Build.MODEL;
+            if (mfg.contains("xiaomi") || mfg.contains("redmi") || mfg.contains("poco")) {
+                config.brandLogo = "xiaomi";
+            } else if (mfg.contains("apple")) {
+                config.brandLogo = "apple";
+            } else if (mfg.contains("samsung")) {
+                config.brandLogo = "samsung";
+            } else if (mfg.contains("sony")) {
+                config.brandLogo = "sony";
+            } else if (mfg.contains("huawei") || mfg.contains("honor")) {
+                config.brandLogo = "huawei";
+            } else if (mfg.contains("google")) {
+                config.brandLogo = "google";
+            } else if (mfg.contains("oppo")) {
+                config.brandLogo = "oppo";
+            } else if (mfg.contains("vivo") || mfg.contains("iqoo")) {
+                config.brandLogo = "vivo";
+            } else if (mfg.contains("oneplus")) {
+                config.brandLogo = "hasselblad";
+            }
+        }
+        return config;
+    }
+
+    private void handleQuickPhotos(List<Uri> uris) {
+        if (uris == null || uris.isEmpty()) return;
+
+        AlertDialog progressDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.quick_processing_title)
+                .setMessage(getString(R.string.quick_processing_photo, 1, uris.size()))
+                .setCancelable(false)
+                .create();
+        progressDialog.show();
+
+        new Thread(() -> {
+            int total = uris.size();
+            int successCount = 0;
+
+            for (int i = 0; i < total; i++) {
+                Uri uri = uris.get(i);
+                int currentIdx = i + 1;
+                runOnUiThread(() -> {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.setMessage(getString(R.string.quick_processing_photo, currentIdx, total));
+                    }
+                });
+
+                try {
+                    WatermarkConfig baseConfig = getQuickWatermarkConfig();
+                    WatermarkConfig photoConfig = WatermarkConfig.fromJson(baseConfig.toJson());
+
+                    ExifReader.ExifData exif = ExifReader.readFromUri(this, uri);
+                    if (exif.cameraParams != null && !exif.cameraParams.isEmpty()) {
+                        photoConfig.cameraParams = exif.cameraParams;
+                    }
+                    if (exif.dateTime != null && !exif.dateTime.isEmpty()) {
+                        photoConfig.dateTime = exif.dateTime;
+                        photoConfig.showDateTime = true;
+                    }
+
+                    Bitmap orientedBmp = ExifReader.loadOrientedBitmap(this, uri);
+                    if (orientedBmp != null) {
+                        Bitmap watermarked = LiquidGlassRenderer.renderWatermark(this, orientedBmp, photoConfig, null);
+                        Uri saved = LiquidGlassRenderer.saveToGallery(this, watermarked, 100);
+                        if (saved != null) {
+                            successCount++;
+                        }
+                        if (watermarked != orientedBmp) {
+                            watermarked.recycle();
+                        }
+                        orientedBmp.recycle();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            final int finalSuccess = successCount;
+            runOnUiThread(() -> {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                if (finalSuccess > 0) {
+                    Toast.makeText(MainActivity.this, getString(R.string.quick_photo_success, finalSuccess), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Không thể xử lý ảnh đã chọn", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
+    }
+
+    private void handleQuickVideo(Uri videoUri) {
+        if (videoUri == null) return;
+
+        AlertDialog progressDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.quick_processing_title)
+                .setMessage(getString(R.string.quick_processing_video, 0))
+                .setCancelable(false)
+                .create();
+        progressDialog.show();
+
+        WatermarkConfig config = getQuickWatermarkConfig();
+
+        VideoWatermarkProcessor.processVideo(this, videoUri, config, null, new VideoWatermarkProcessor.VideoProcessCallback() {
+            @Override
+            public void onProgress(int progressPercent) {
+                runOnUiThread(() -> {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.setMessage(getString(R.string.quick_processing_video, progressPercent));
+                    }
+                });
+            }
+
+            @Override
+            public void onComplete(Uri outputUri) {
+                runOnUiThread(() -> {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                    }
+                    Toast.makeText(MainActivity.this, R.string.quick_video_success, Toast.LENGTH_LONG).show();
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() -> {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                    }
+                    Toast.makeText(MainActivity.this, getString(R.string.export_failed, message), Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
     }
 
     // --- Tab 2: Presets Library ---

@@ -28,6 +28,70 @@
             android:letterSpacing="-0.02"
             android:layout_marginBottom="24dp" />
 
+        <!-- Card 0: Quick 1-Tap Watermark (⚡ Chèn Nhanh 1 Chạm) -->
+        <LinearLayout
+            android:id="@+id/cardQuick"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_white"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/card_quick_title"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/inter" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/card_quick_desc"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:fontFamily="@font/inter"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="18dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnQuickPhoto"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_button_black"
+                    android:text="@string/btn_quick_photo"
+                    android:textColor="@color/btn_black_text"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/inter"
+                    android:textAllCaps="false"
+                    android:layout_marginEnd="8dp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnQuickVideo"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_button_light"
+                    android:text="@string/btn_quick_video"
+                    android:textColor="@color/btn_light_text"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/inter"
+                    android:textAllCaps="false" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Card 1: Select Photo (Thêm ảnh) -->
         <LinearLayout
             android:id="@+id/cardPhoto"

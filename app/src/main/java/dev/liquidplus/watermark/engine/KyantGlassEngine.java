@@ -29,12 +29,12 @@ public class KyantGlassEngine {
 
     // Exact Kyant0 / Photo Watermark 4.0.6 Signed Distance Field (SDF) and normal gradient shader string
     public static final String COMMON_SDF_AGSL =
-            "float radiusAt(float2 coord, float4 radii) {\n" +
-            "    if (coord.x >= 0.0) {\n" +
-            "        if (coord.y <= 0.0) return radii.y;\n" +
+            "float radiusAt(float2 centeredCoord, float4 radii) {\n" +
+            "    if (centeredCoord.x >= 0.0) {\n" +
+            "        if (centeredCoord.y <= 0.0) return radii.y;\n" +
             "        else return radii.z;\n" +
             "    } else {\n" +
-            "        if (coord.y <= 0.0) return radii.x;\n" +
+            "        if (centeredCoord.y <= 0.0) return radii.x;\n" +
             "        else return radii.w;\n" +
             "    }\n" +
             "}\n" +
@@ -84,7 +84,7 @@ public class KyantGlassEngine {
             "half4 main(float2 coord) {\n" +
             "    float2 halfSize = size * 0.5;\n" +
             "    float2 centeredCoord = (coord + offset) - halfSize;\n" +
-            "    float radius = radiusAt(coord, cornerRadii);\n" +
+            "    float radius = radiusAt(centeredCoord, cornerRadii);\n" +
             "    float sd = sdRoundedRect(centeredCoord, halfSize, radius);\n" +
             "    if (-sd >= refractionHeight) {\n" +
             "        return content.eval(coord);\n" +
@@ -138,7 +138,7 @@ public class KyantGlassEngine {
             "half4 main(float2 coord) {\n" +
             "    float2 halfSize = size * 0.5;\n" +
             "    float2 centeredCoord = coord - halfSize;\n" +
-            "    float radius = radiusAt(coord, cornerRadii);\n" +
+            "    float radius = radiusAt(centeredCoord, cornerRadii);\n" +
             "    float gradRadius = min(radius * 1.5, min(halfSize.x, halfSize.y));\n" +
             "    float2 grad = gradSdRoundedRect(centeredCoord, halfSize, gradRadius);\n" +
             "    float2 normal = float2(cos(angle), sin(angle));\n" +
@@ -199,16 +199,20 @@ public class KyantGlassEngine {
         float w = capsuleRect.width();
         float h = capsuleRect.height();
         float r = h / 2.0f; // Perfect pill hemisphere
+        float strokeScale = Math.max(1.0f, h / 36.0f);
 
-        Path pillPath = new Path();
-        pillPath.addRoundRect(capsuleRect, r, r, Path.Direction.CW);
+        canvas.save();
+        canvas.translate(capsuleRect.left, capsuleRect.top);
 
-        // 1. Soft subtle ambient shadow behind the capsule
-        canvas.drawRoundRect(
-                capsuleRect.left, capsuleRect.top + 1.2f,
-                capsuleRect.right, capsuleRect.bottom + 1.2f,
-                r, r, shadowPaint
-        );
+        RectF localRect = new RectF(0, 0, w, h);
+        Path localPill = new Path();
+        localPill.addRoundRect(localRect, r, r, Path.Direction.CW);
+
+        // 1. Soft subtle ambient & drop shadow behind the capsule
+        shadowPaint.setColor(Color.argb(32, 0, 0, 0));
+        canvas.drawRoundRect(0, 1.5f * strokeScale, w, h + 1.5f * strokeScale, r, r, shadowPaint);
+        shadowPaint.setColor(Color.argb(20, 0, 0, 0));
+        canvas.drawRoundRect(0, 3.5f * strokeScale, w, h + 3.5f * strokeScale, r, r, shadowPaint);
 
         // 2. Refracted Backdrop Image
         Bitmap slice = null;
@@ -230,16 +234,16 @@ public class KyantGlassEngine {
 
         // Try AGSL GPU Shader on Android 13+ ONLY if canvas is hardware-accelerated
         if (isHw && slice != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslRuntimeShader != null) {
-            drewRefraction = drawAgslRefraction(canvas, pillPath, capsuleRect, slice, w, h, r, refractionStrength);
+            drewRefraction = drawAgslRefraction(canvas, localPill, localRect, slice, w, h, r, refractionStrength);
         }
 
         // Software Fallback (Runs on all Android versions, software canvases & Bitmap exports)
         if (!drewRefraction && slice != null) {
-            Bitmap refractedSlice = renderSoftwareRefraction(slice, (int) w, (int) h, refractionStrength, blurStrength);
+            Bitmap refractedSlice = renderSoftwareRefraction(slice, (int) w, (int) h, refractionStrength, blurStrength, rimLightStrength);
             if (refractedSlice != null) {
                 canvas.save();
-                canvas.clipPath(pillPath);
-                canvas.drawBitmap(refractedSlice, null, capsuleRect, null);
+                canvas.clipPath(localPill);
+                canvas.drawBitmap(refractedSlice, null, localRect, null);
                 canvas.restore();
                 drewRefraction = true;
                 if (refractedSlice != slice) {
@@ -255,40 +259,55 @@ public class KyantGlassEngine {
         // 3. Subtle Liquid Glass Tint Layer (crisp light absorption)
         Paint glassTint = new Paint(Paint.ANTI_ALIAS_FLAG);
         glassTint.setStyle(Paint.Style.FILL);
-        glassTint.setColor(Color.argb(drewRefraction ? 20 : 45, 255, 255, 255));
-        canvas.drawRoundRect(capsuleRect, r, r, glassTint);
+        glassTint.setColor(Color.argb((backdropSource != null && drewRefraction) ? 22 : 48, 255, 255, 255));
+        canvas.drawRoundRect(localRect, r, r, glassTint);
 
-        // 4. Interactive Specular Highlight (AGSL on API 33+, Hardware Accelerated only)
+        // 4. Soft Top Surface Sheen (Mặt kính vát bóng Apple)
+        Paint sheenPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        sheenPaint.setStyle(Paint.Style.FILL);
+        LinearGradient sheenGrad = new LinearGradient(
+                0, 0, 0, h * 0.52f,
+                new int[]{Color.argb(45, 255, 255, 255), Color.argb(0, 255, 255, 255)},
+                null, Shader.TileMode.CLAMP
+        );
+        sheenPaint.setShader(sheenGrad);
+        canvas.save();
+        canvas.clipPath(localPill);
+        canvas.drawRoundRect(localRect, r, r, sheenPaint);
+        canvas.restore();
+
+        // 5. Interactive Specular Highlight (AGSL on API 33+, Hardware Accelerated only)
         if (isHw && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && agslHighlightShader != null) {
-            drawAgslHighlight(canvas, pillPath, capsuleRect, w, h, r, rimLightStrength);
+            drawAgslHighlight(canvas, localPill, localRect, w, h, r, rimLightStrength);
         }
 
-        // 5. Specular Highlights & Rim Glow (Corner crescents + luminous perimeter stroke)
-        drawKyantHighlights(canvas, capsuleRect, r, rimLightStrength);
+        // 6. Specular Highlights & Rim Glow (Luminous continuous gradient perimeter stroke + top sheen line)
+        drawKyantHighlights(canvas, localRect, r, strokeScale, rimLightStrength);
+
+        canvas.restore();
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private void drawAgslHighlight(Canvas canvas, Path pillPath, RectF capsuleRect, float w, float h, float r, float rimLightStrength) {
+    private void drawAgslHighlight(Canvas canvas, Path localPill, RectF localRect, float w, float h, float r, float rimLightStrength) {
         try {
             android.graphics.RuntimeShader shader = (android.graphics.RuntimeShader) agslHighlightShader;
             shader.setFloatUniform("size", w, h);
             shader.setFloatUniform("cornerRadii", new float[]{r, r, r, r});
-            // 45 degrees top-left / top-right angle matching Photo Watermark
-            shader.setFloatUniform("angle", 0.7853982f);
-            shader.setFloatUniform("falloff", 16.0f);
+            // Point towards top-left (-135 degrees = -2.3561945 rad)
+            shader.setFloatUniform("angle", -2.3561945f);
+            shader.setFloatUniform("falloff", 14.0f);
 
-            agslHighlightPaint.setAlpha((int) (Math.min(1.0f, rimLightStrength) * 230));
+            agslHighlightPaint.setAlpha((int) (Math.min(1.0f, rimLightStrength) * 220));
 
             canvas.save();
-            canvas.clipPath(pillPath);
-            canvas.translate(capsuleRect.left, capsuleRect.top);
-            canvas.drawRect(0, 0, w, h, agslHighlightPaint);
+            canvas.clipPath(localPill);
+            canvas.drawRect(localRect, agslHighlightPaint);
             canvas.restore();
         } catch (Throwable ignored) {}
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private boolean drawAgslRefraction(Canvas canvas, Path pillPath, RectF capsuleRect, Bitmap slice, float w, float h, float r, float refractionStrength) {
+    private boolean drawAgslRefraction(Canvas canvas, Path localPill, RectF localRect, Bitmap slice, float w, float h, float r, float refractionStrength) {
         try {
             android.graphics.RuntimeShader shader = (android.graphics.RuntimeShader) agslRuntimeShader;
             BitmapShader bmpShader = new BitmapShader(slice, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
@@ -306,9 +325,8 @@ public class KyantGlassEngine {
             shader.setFloatUniform("chromaticAberration", 0.35f * refractionStrength);
 
             canvas.save();
-            canvas.clipPath(pillPath);
-            canvas.translate(capsuleRect.left, capsuleRect.top);
-            canvas.drawRoundRect(0, 0, w, h, r, r, agslPaint);
+            canvas.clipPath(localPill);
+            canvas.drawRoundRect(localRect, r, r, agslPaint);
             canvas.restore();
             return true;
         } catch (Throwable t) {
@@ -317,46 +335,63 @@ public class KyantGlassEngine {
     }
 
     /**
-     * Draws authentic iPhone Liquid Glass specular highlights: 2 corner crescent arcs,
-     * top rim sheen line, and luminous uniform glass perimeter.
+     * Draws authentic iPhone Liquid Glass specular highlights:
+     * Seamless luminous perimeter gradient stroke (glowing top-left corner & top rim)
+     * and crisp upper hairline sheen.
      */
-    private void drawKyantHighlights(Canvas canvas, RectF capsuleRect, float r, float rimLightStrength) {
-        int cornerAlpha = (int) (Math.min(1.0f, rimLightStrength * 1.25f) * 220);
-        int borderAlpha = (int) (Math.min(1.0f, rimLightStrength) * 170);
+    private void drawKyantHighlights(Canvas canvas, RectF localRect, float r, float strokeScale, float rimLightStrength) {
+        float w = localRect.width();
+        float h = localRect.height();
 
-        float h = capsuleRect.height();
-        float strokeScale = Math.max(1.0f, h / 36.0f);
+        int topLuminousAlpha = Math.min(255, (int)(rimLightStrength * 240));
+        int midAlpha = Math.min(255, (int)(rimLightStrength * 160));
+        int lowAlpha = Math.min(255, (int)(rimLightStrength * 50));
+        int bottomReflectAlpha = Math.min(255, (int)(rimLightStrength * 120));
 
-        // 1. Full perimeter glass stroke (Uniform luminous translucent white, NO black at bottom)
-        borderPaint.setShader(null);
-        borderPaint.setColor(Color.argb(borderAlpha, 255, 255, 255));
-        borderPaint.setStrokeWidth(1.0f * strokeScale);
-        canvas.drawRoundRect(capsuleRect, r, r, borderPaint);
-
-        highlightPaint.setStyle(Paint.Style.STROKE);
-        highlightPaint.setShader(null);
-        highlightPaint.setColor(Color.argb(cornerAlpha, 255, 255, 255));
-        highlightPaint.setStrokeWidth(1.6f * strokeScale);
-
-        // 2. Left corner specular crescent arc (Viền sáng góc trái iPhone)
-        float inset = 1.0f * strokeScale;
-        RectF leftArcRect = new RectF(
-                capsuleRect.left + inset, capsuleRect.top + inset,
-                capsuleRect.left + 2 * r - inset, capsuleRect.bottom - inset
+        // 1. Continuous specular perimeter gradient stroke (Viền sáng iPhone Liquid Glass)
+        borderPaint.setStyle(Paint.Style.STROKE);
+        borderPaint.setStrokeWidth(1.25f * strokeScale);
+        LinearGradient borderGrad = new LinearGradient(
+                0, 0, w, h,
+                new int[]{
+                        Color.argb(topLuminousAlpha, 255, 255, 255), // Top-left brilliant rim (Ánh sáng góc trái)
+                        Color.argb(midAlpha, 255, 255, 255),          // Top & left curvature
+                        Color.argb(lowAlpha, 255, 255, 255),          // Translucent mid-bottom edge
+                        Color.argb(bottomReflectAlpha, 255, 255, 255) // Ground reflection rim
+                },
+                new float[]{0.0f, 0.28f, 0.70f, 1.0f},
+                Shader.TileMode.CLAMP
         );
-        canvas.drawArc(leftArcRect, 110, 140, false, highlightPaint);
+        borderPaint.setShader(borderGrad);
+        canvas.drawRoundRect(localRect, r, r, borderPaint);
 
-        // 3. Right corner specular crescent arc (Viền sáng góc phải iPhone)
-        RectF rightArcRect = new RectF(
-                capsuleRect.right - 2 * r + inset, capsuleRect.top + inset,
-                capsuleRect.right - inset, capsuleRect.bottom - inset
+        // 2. Extra crisp specular hairline on the top edge (Ánh sáng đỉnh vát)
+        Paint topRimPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        topRimPaint.setStyle(Paint.Style.STROKE);
+        topRimPaint.setStrokeWidth(0.9f * strokeScale);
+        LinearGradient topSheen = new LinearGradient(
+                0, 0, w, 0,
+                new int[]{
+                        Color.argb(0, 255, 255, 255),
+                        Color.argb(Math.min(255, (int)(rimLightStrength * 200)), 255, 255, 255),
+                        Color.argb(Math.min(255, (int)(rimLightStrength * 200)), 255, 255, 255),
+                        Color.argb(0, 255, 255, 255)
+                },
+                new float[]{0.0f, 0.20f, 0.80f, 1.0f},
+                Shader.TileMode.CLAMP
         );
-        canvas.drawArc(rightArcRect, 290, 140, false, highlightPaint);
+        topRimPaint.setShader(topSheen);
+        canvas.drawLine(r * 0.7f, 0.8f * strokeScale, w - r * 0.7f, 0.8f * strokeScale, topRimPaint);
+    }
 
-        // 4. Top rim specular sheen line
-        highlightPaint.setStrokeWidth(1.2f * strokeScale);
-        highlightPaint.setColor(Color.argb((int) (cornerAlpha * 0.90f), 255, 255, 255));
-        canvas.drawLine(capsuleRect.left + r, capsuleRect.top + inset, capsuleRect.right - r, capsuleRect.top + inset, highlightPaint);
+    public static Bitmap renderSoftwareRefraction(
+            Bitmap sourceSlice,
+            int targetW,
+            int targetH,
+            float refractionStrength,
+            float blurStrength
+    ) {
+        return renderSoftwareRefraction(sourceSlice, targetW, targetH, refractionStrength, blurStrength, 1.0f);
     }
 
     /**
@@ -368,7 +403,8 @@ public class KyantGlassEngine {
             int targetW,
             int targetH,
             float refractionStrength,
-            float blurStrength
+            float blurStrength,
+            float rimLightStrength
     ) {
         if (sourceSlice == null || sourceSlice.isRecycled()) return null;
 
@@ -486,11 +522,11 @@ public class KyantGlassEngine {
                 float greenVal = (g2 / 7.0f) + (g3 / 3.5f) + (g4 / 3.5f) + (g5 / 3.5f);
                 float blueVal = (b5 / 3.0f) + (b6 / 3.0f) + (b7 / 3.0f);
 
-                // 3. Specular highlight calculation (45-degree rim normal)
-                float dDot = gradX * 0.7071f - gradY * 0.7071f;
+                // 3. Specular highlight calculation (Top-left normal)
+                float dDot = -(gradX + gradY) * 0.7071f;
                 float spec = 0f;
                 if (dDot > 0f) {
-                    spec = (float) Math.pow(dDot, 16.0) * 160f;
+                    spec = (float) Math.pow(dDot, 14.0) * 150f * rimLightStrength;
                 }
 
                 int finalR = Math.min(255, (int)(redVal * 1.03f + spec + 8));

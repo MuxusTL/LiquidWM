@@ -17,6 +17,17 @@
     <string name="card_video_title">Video Watermark</string>
     <string name="card_video_desc">Support video watermarking with real-time live preview and original audio track preserved.</string>
     <string name="btn_select_video">Select Video</string>
+
+    <!-- Quick 1-Tap Watermark -->
+    <string name="card_quick_title">⚡ 1-Tap Quick Watermark</string>
+    <string name="card_quick_desc">Auto-detects EXIF &amp; device, applies Liquid Glass watermark and saves directly to Gallery instantly without opening the editor.</string>
+    <string name="btn_quick_photo">⚡ Quick Photos</string>
+    <string name="btn_quick_video">⚡ Quick Video</string>
+    <string name="quick_processing_title">Processing Watermark...</string>
+    <string name="quick_processing_photo">Watermarking photo %1$d/%2$d...</string>
+    <string name="quick_processing_video">Exporting video (%1$d%%)...</string>
+    <string name="quick_photo_success">Successfully watermarked and saved %1$d photo(s) to Gallery (Pictures/LiquidWatermark)!</string>
+    <string name="quick_video_success">Successfully watermarked and saved video to Gallery (Movies/LiquidWatermark)!</string>
     
     <string name="section_common_tools">Common Tools</string>
     <string name="tool_my_presets">My Preset Library</string>
