@@ -81,13 +81,13 @@ public class LiquidGlassView extends View {
         // Text paints - crisp white typography with subtle optical shadow
         textTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textTitlePaint.setColor(Color.WHITE);
-        textTitlePaint.setTextSize(dpToPx(12f));
+        textTitlePaint.setTextSize(dpToPx(12.5f));
         textTitlePaint.setTypeface(fontBold != null ? fontBold : Typeface.DEFAULT_BOLD);
         textTitlePaint.setShadowLayer(dpToPx(1.8f), 0, dpToPx(0.8f), Color.parseColor("#80000000"));
 
         textSubPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textSubPaint.setColor(Color.WHITE);
-        textSubPaint.setTextSize(dpToPx(9.2f));
+        textSubPaint.setTextSize(dpToPx(9.5f));
         textSubPaint.setTypeface(fontMedium != null ? fontMedium : Typeface.DEFAULT);
         textSubPaint.setShadowLayer(dpToPx(1.4f), 0, dpToPx(0.7f), Color.parseColor("#80000000"));
 
@@ -96,10 +96,10 @@ public class LiquidGlassView extends View {
     }
 
     private void applyPaintsScale(float scale) {
-        textTitlePaint.setTextSize(dpToPx(12f * scale));
+        textTitlePaint.setTextSize(dpToPx(12.5f * scale));
         textTitlePaint.setShadowLayer(dpToPx(1.8f * scale), 0, dpToPx(0.8f * scale), Color.parseColor("#80000000"));
 
-        textSubPaint.setTextSize(dpToPx(9.2f * scale));
+        textSubPaint.setTextSize(dpToPx(9.5f * scale));
         textSubPaint.setShadowLayer(dpToPx(1.4f * scale), 0, dpToPx(0.7f * scale), Color.parseColor("#80000000"));
     }
 
@@ -178,8 +178,8 @@ public class LiquidGlassView extends View {
         float scale = Math.max(0.5f, Math.min(2.0f, config.scale > 0 ? config.scale : 1.0f));
         applyPaintsScale(scale);
 
-        // Slim, elegant capsule height matching user's reference image
-        float h = dpToPx(34f * scale);
+        // Sleek capsule height matching Photo Watermark
+        float h = dpToPx(36f * scale);
 
         // Measure text widths
         float modelWidth = textTitlePaint.measureText(config.deviceModel != null ? config.deviceModel : "");
@@ -189,7 +189,7 @@ public class LiquidGlassView extends View {
 
         float logoSize = dpToPx(16f * scale);
         float paddingSide = dpToPx(14f * scale);
-        float spacingMiddle = dpToPx(20f * scale);
+        float spacingMiddle = dpToPx(18f * scale);
         float logoMargin = dpToPx(7f * scale);
 
         float totalW = paddingSide * 2 + logoSize + logoMargin + modelWidth + spacingMiddle + rightColWidth;

@@ -55,16 +55,16 @@ public class LiquidGlassRenderer {
             fontBold = Typeface.DEFAULT_BOLD;
         }
 
-        // Paints - Crisp typography matching Kyant0 aesthetic
+        // Paints - Crisp typography matching Photo Watermark specifications
         Paint textTitlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textTitlePaint.setColor(Color.WHITE);
-        textTitlePaint.setTextSize(12f * scale);
+        textTitlePaint.setTextSize(12.5f * scale);
         textTitlePaint.setTypeface(fontBold != null ? fontBold : Typeface.DEFAULT_BOLD);
         textTitlePaint.setShadowLayer(1.8f * scale, 0, 0.8f * scale, Color.parseColor("#80000000"));
 
         Paint textSubPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textSubPaint.setColor(Color.WHITE);
-        textSubPaint.setTextSize(9.2f * scale);
+        textSubPaint.setTextSize(9.5f * scale);
         textSubPaint.setTypeface(fontMedium != null ? fontMedium : Typeface.DEFAULT);
         textSubPaint.setShadowLayer(1.4f * scale, 0, 0.7f * scale, Color.parseColor("#80000000"));
 
@@ -76,13 +76,13 @@ public class LiquidGlassRenderer {
 
         float logoSize = 16f * scale;
         float paddingSide = 14f * scale;
-        float spacingMiddle = 20f * scale;
+        float spacingMiddle = 18f * scale;
         float logoMargin = 7f * scale;
 
         float capsuleW = paddingSide * 2 + logoSize + logoMargin + modelWidth + spacingMiddle + rightColWidth;
         capsuleW = Math.max(capsuleW, 210f * scale);
-        // Slim, elegant capsule height matching user's reference image
-        float capsuleH = 34f * scale;
+        // Sleek capsule height matching Photo Watermark
+        float capsuleH = 36f * scale;
 
         // Position on photo (3 fixed modes: Left, Center, Right)
         float marginX = 24f * scale;
