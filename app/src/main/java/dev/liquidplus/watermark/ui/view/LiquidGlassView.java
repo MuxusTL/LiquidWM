@@ -89,7 +89,16 @@ public class LiquidGlassView extends View {
         textSubPaint.setTypeface(fontMedium != null ? fontMedium : Typeface.DEFAULT);
         textSubPaint.setShadowLayer(dpToPx(1.4f), 0, dpToPx(0.7f), Color.parseColor("#80000000"));
 
+        applyPaintsScale(1.0f);
         updateBrandLogo();
+    }
+
+    private void applyPaintsScale(float scale) {
+        textTitlePaint.setTextSize(dpToPx(12f * scale));
+        textTitlePaint.setShadowLayer(dpToPx(1.8f * scale), 0, dpToPx(0.8f * scale), Color.parseColor("#80000000"));
+
+        textSubPaint.setTextSize(dpToPx(9.2f * scale));
+        textSubPaint.setShadowLayer(dpToPx(1.4f * scale), 0, dpToPx(0.7f * scale), Color.parseColor("#80000000"));
     }
 
     public void setConfig(WatermarkConfig config) {
@@ -143,8 +152,11 @@ public class LiquidGlassView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        float scale = Math.max(0.5f, Math.min(2.0f, config.scale > 0 ? config.scale : 1.0f));
+        applyPaintsScale(scale);
+
         // Slim, elegant capsule height matching user's reference image
-        float h = dpToPx(34f);
+        float h = dpToPx(34f * scale);
 
         // Measure text widths
         float modelWidth = textTitlePaint.measureText(config.deviceModel != null ? config.deviceModel : "");
@@ -152,24 +164,27 @@ public class LiquidGlassView extends View {
         float dateWidth = config.showDateTime && config.dateTime != null ? textSubPaint.measureText(config.dateTime) : 0;
         float rightColWidth = Math.max(paramsWidth, dateWidth);
 
-        float logoSize = dpToPx(16f);
-        float paddingSide = dpToPx(14f);
-        float spacingMiddle = dpToPx(20f);
-        float logoMargin = dpToPx(7f);
+        float logoSize = dpToPx(16f * scale);
+        float paddingSide = dpToPx(14f * scale);
+        float spacingMiddle = dpToPx(20f * scale);
+        float logoMargin = dpToPx(7f * scale);
 
         float totalW = paddingSide * 2 + logoSize + logoMargin + modelWidth + spacingMiddle + rightColWidth;
-        totalW = Math.max(totalW, dpToPx(210f));
+        totalW = Math.max(totalW, dpToPx(210f * scale));
 
         // Add small padding for drop shadow
-        setMeasuredDimension((int) Math.ceil(totalW + dpToPx(12f)), (int) Math.ceil(h + dpToPx(10f)));
+        setMeasuredDimension((int) Math.ceil(totalW + dpToPx(12f * scale)), (int) Math.ceil(h + dpToPx(10f * scale)));
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float shadowPaddingX = dpToPx(4f);
-        float shadowPaddingY = dpToPx(3f);
+        float scale = Math.max(0.5f, Math.min(2.0f, config.scale > 0 ? config.scale : 1.0f));
+        applyPaintsScale(scale);
+
+        float shadowPaddingX = dpToPx(4f * scale);
+        float shadowPaddingY = dpToPx(3f * scale);
         float w = getWidth() - shadowPaddingX * 2;
         float h = getHeight() - shadowPaddingY * 2;
         float r = h / 2.0f; // Perfect pill hemisphere
@@ -191,10 +206,10 @@ public class LiquidGlassView extends View {
         );
 
         // 2. Draw Content inside the Capsule (Brand, Device, Camera Params, Date)
-        float paddingLeft = capsuleRect.left + dpToPx(13f);
-        float paddingRight = capsuleRect.right - dpToPx(13f);
+        float paddingLeft = capsuleRect.left + dpToPx(13f * scale);
+        float paddingRight = capsuleRect.right - dpToPx(13f * scale);
         float centerY = capsuleRect.centerY();
-        float logoSize = dpToPx(16f);
+        float logoSize = dpToPx(16f * scale);
 
         boolean isLeft = WatermarkConfig.POSITION_LEFT.equalsIgnoreCase(config.logoPosition);
 
@@ -204,12 +219,12 @@ public class LiquidGlassView extends View {
             if (customLogoBitmap != null) {
                 RectF dest = new RectF(curX, centerY - logoSize / 2f, curX + logoSize, centerY + logoSize / 2f);
                 canvas.drawBitmap(customLogoBitmap, null, dest, null);
-                curX += logoSize + dpToPx(7f);
+                curX += logoSize + dpToPx(7f * scale);
             } else if (brandDrawable != null) {
                 brandDrawable.setBounds((int) curX, (int)(centerY - logoSize / 2f),
                         (int)(curX + logoSize), (int)(centerY + logoSize / 2f));
                 brandDrawable.draw(canvas);
-                curX += logoSize + dpToPx(7f);
+                curX += logoSize + dpToPx(7f * scale);
             }
 
             // Draw Device Model
@@ -225,8 +240,8 @@ public class LiquidGlassView extends View {
 
             if (config.showDateTime && config.dateTime != null && !config.dateTime.isEmpty()) {
                 // Two compact lines
-                float line1Y = centerY - dpToPx(1.8f);
-                float line2Y = centerY + dpToPx(9.0f);
+                float line1Y = centerY - dpToPx(1.8f * scale);
+                float line2Y = centerY + dpToPx(9.0f * scale);
                 if (config.cameraParams != null && !config.cameraParams.isEmpty()) {
                     canvas.drawText(config.cameraParams, rightX, line1Y, textSubPaint);
                 }
@@ -256,18 +271,18 @@ public class LiquidGlassView extends View {
             if (customLogoBitmap != null) {
                 RectF dest = new RectF(curRight - logoSize, centerY - logoSize / 2f, curRight, centerY + logoSize / 2f);
                 canvas.drawBitmap(customLogoBitmap, null, dest, null);
-                curRight -= (logoSize + dpToPx(7f));
+                curRight -= (logoSize + dpToPx(7f * scale));
             } else if (brandDrawable != null) {
                 brandDrawable.setBounds((int)(curRight - logoSize), (int)(centerY - logoSize / 2f),
                         (int) curRight, (int)(centerY + logoSize / 2f));
                 brandDrawable.draw(canvas);
-                curRight -= (logoSize + dpToPx(7f));
+                curRight -= (logoSize + dpToPx(7f * scale));
             }
 
             textSubPaint.setTextAlign(Paint.Align.RIGHT);
             if (config.showDateTime && config.dateTime != null && !config.dateTime.isEmpty()) {
-                float line1Y = centerY - dpToPx(1.8f);
-                float line2Y = centerY + dpToPx(9.0f);
+                float line1Y = centerY - dpToPx(1.8f * scale);
+                float line2Y = centerY + dpToPx(9.0f * scale);
                 if (config.cameraParams != null && !config.cameraParams.isEmpty()) {
                     canvas.drawText(config.cameraParams, curRight, line1Y, textSubPaint);
                 }
@@ -295,8 +310,8 @@ public class LiquidGlassView extends View {
         float bmpW = backdropBitmap.getWidth();
         float bmpH = backdropBitmap.getHeight();
 
-        // Calculate aspect fill / center crop scale
-        float scale = Math.max(parentW / bmpW, parentH / bmpH);
+        // Calculate aspect fit scale
+        float scale = Math.min(parentW / bmpW, parentH / bmpH);
         float scaledW = bmpW * scale;
         float scaledH = bmpH * scale;
         float dx = (parentW - scaledW) / 2.0f;
@@ -312,60 +327,19 @@ public class LiquidGlassView extends View {
         float cropW = capsule.width() / scale;
         float cropH = capsule.height() / scale;
 
-        backdropCropRect.set(cropL, cropT, cropL + cropW, cropT + cropH);
+        // Clamp crop bounds to bitmap
+        cropL = Math.max(0, Math.min(cropL, bmpW - 1));
+        cropT = Math.max(0, Math.min(cropT, bmpH - 1));
+        float cropR = Math.max(cropL + 1, Math.min(cropL + cropW, bmpW));
+        float cropB = Math.max(cropT + 1, Math.min(cropT + cropH, bmpH));
+
+        backdropCropRect.set(cropL, cropT, cropR, cropB);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                touchStartX = event.getRawX();
-                touchStartY = event.getRawY();
-                dX = getX() - touchStartX;
-                dY = getY() - touchStartY;
-                isDragging = false;
-                if (getParent() != null) {
-                    getParent().requestDisallowInterceptTouchEvent(true);
-                }
-                return true;
-
-            case MotionEvent.ACTION_MOVE:
-                float diffX = Math.abs(event.getRawX() - touchStartX);
-                float diffY = Math.abs(event.getRawY() - touchStartY);
-                if (diffX > 6 || diffY > 6) {
-                    isDragging = true;
-                }
-                if (isDragging) {
-                    float newX = event.getRawX() + dX;
-                    float newY = event.getRawY() + dY;
-
-                    ViewGroup parent = (ViewGroup) getParent();
-                    if (parent != null) {
-                        newX = Math.max(0, Math.min(newX, parent.getWidth() - getWidth()));
-                        newY = Math.max(0, Math.min(newY, parent.getHeight() - getHeight()));
-
-                        setX(newX);
-                        setY(newY);
-
-                        // Update ratio in config
-                        if (parent.getWidth() > 0 && parent.getHeight() > 0) {
-                            config.posXRatio = (newX + getWidth() / 2f) / parent.getWidth();
-                            config.posYRatio = (newY + getHeight() / 2f) / parent.getHeight();
-                        }
-                    }
-                    invalidate();
-                }
-                return true;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                if (getParent() != null) {
-                    getParent().requestDisallowInterceptTouchEvent(false);
-                }
-                isDragging = false;
-                invalidate();
-                return true;
-        }
+        // Free dragging is disabled per user request.
+        // Watermark position is controlled via Left / Center / Right alignment switcher.
         return super.onTouchEvent(event);
     }
 

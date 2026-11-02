@@ -9,9 +9,14 @@ public class WatermarkConfig implements Serializable {
     public static final String POSITION_LEFT = "LEFT";
     public static final String POSITION_RIGHT = "RIGHT";
 
+    public static final String ALIGN_LEFT = "LEFT";
+    public static final String ALIGN_CENTER = "CENTER";
+    public static final String ALIGN_RIGHT = "RIGHT";
+
     public String brandLogo = "leica";
     public String customLogoUri = null;
-    public String logoPosition = POSITION_LEFT;
+    public String logoPosition = POSITION_LEFT; // logo inside watermark (left or right)
+    public String watermarkAlignment = ALIGN_CENTER; // watermark on image (left, center, right)
     public String deviceModel = "Redmi 10";
     public String cameraParams = "35mm · f/1.8 · ISO 100";
     public String dateTime = "2026.09.05";
@@ -34,6 +39,7 @@ public class WatermarkConfig implements Serializable {
             obj.put("brandLogo", brandLogo);
             obj.put("customLogoUri", customLogoUri);
             obj.put("logoPosition", logoPosition);
+            obj.put("watermarkAlignment", watermarkAlignment);
             obj.put("deviceModel", deviceModel);
             obj.put("cameraParams", cameraParams);
             obj.put("dateTime", dateTime);
@@ -56,13 +62,14 @@ public class WatermarkConfig implements Serializable {
         config.brandLogo = obj.optString("brandLogo", "leica");
         config.customLogoUri = obj.optString("customLogoUri", null);
         config.logoPosition = obj.optString("logoPosition", POSITION_LEFT);
+        config.watermarkAlignment = obj.optString("watermarkAlignment", ALIGN_CENTER);
         config.deviceModel = obj.optString("deviceModel", "Redmi 10");
         config.cameraParams = obj.optString("cameraParams", "35mm · f/1.8 · ISO 100");
         config.dateTime = obj.optString("dateTime", "2026.09.05");
         config.showDateTime = obj.optBoolean("showDateTime", true);
-        config.blurStrength = (float) obj.optDouble("blurStrength", 0.60f);
-        config.refractionStrength = (float) obj.optDouble("refractionStrength", 0.75f);
-        config.rimLightStrength = (float) obj.optDouble("rimLightStrength", 0.85f);
+        config.blurStrength = (float) obj.optDouble("blurStrength", 0.50f);
+        config.refractionStrength = (float) obj.optDouble("refractionStrength", 0.85f);
+        config.rimLightStrength = (float) obj.optDouble("rimLightStrength", 0.90f);
         config.posXRatio = (float) obj.optDouble("posXRatio", 0.5f);
         config.posYRatio = (float) obj.optDouble("posYRatio", 0.86f);
         config.scale = (float) obj.optDouble("scale", 1.0f);

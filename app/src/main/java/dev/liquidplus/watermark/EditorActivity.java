@@ -58,6 +58,9 @@ public class EditorActivity extends AppCompatActivity {
     private AppCompatButton btnTogglePreview;
     private TextView tvLogoStatus;
     private TextView btnPosLeft, btnPosRight;
+    private TextView btnAlignLeft, btnAlignCenter, btnAlignRight;
+    private TextView tvWatermarkSizeLabel;
+    private SeekBar sbWatermarkSize;
     private EditText etDeviceModel, etCameraParams, etDateTime;
     private SeekBar sbBlur, sbRefraction, sbRimLight;
     private AppCompatButton btnExportFile;
@@ -125,6 +128,13 @@ public class EditorActivity extends AppCompatActivity {
         btnPosLeft = findViewById(R.id.btnPosLeft);
         btnPosRight = findViewById(R.id.btnPosRight);
 
+        btnAlignLeft = findViewById(R.id.btnAlignLeft);
+        btnAlignCenter = findViewById(R.id.btnAlignCenter);
+        btnAlignRight = findViewById(R.id.btnAlignRight);
+
+        tvWatermarkSizeLabel = findViewById(R.id.tvWatermarkSizeLabel);
+        sbWatermarkSize = findViewById(R.id.sbWatermarkSize);
+
         etDeviceModel = findViewById(R.id.etDeviceModel);
         etCameraParams = findViewById(R.id.etCameraParams);
         etDateTime = findViewById(R.id.etDateTime);
@@ -188,9 +198,32 @@ public class EditorActivity extends AppCompatActivity {
             liquidGlassWatermark.setBackdropBitmap(sourceBitmap);
         }
         liquidGlassWatermark.setConfig(config);
+        updateWatermarkAlignment();
     }
 
     private void setupControls() {
+        // Watermark Alignment (Left, Center, Right)
+        updateWatermarkAlignment();
+        btnAlignLeft.setOnClickListener(v -> setWatermarkAlignment(WatermarkConfig.ALIGN_LEFT));
+        btnAlignCenter.setOnClickListener(v -> setWatermarkAlignment(WatermarkConfig.ALIGN_CENTER));
+        btnAlignRight.setOnClickListener(v -> setWatermarkAlignment(WatermarkConfig.ALIGN_RIGHT));
+
+        // Watermark Size Slider
+        if (config.scale <= 0) config.scale = 1.0f;
+        int currentSizePercent = Math.round(config.scale * 100);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            sbWatermarkSize.setMin(60);
+        }
+        sbWatermarkSize.setMax(140);
+        sbWatermarkSize.setProgress(currentSizePercent);
+        tvWatermarkSizeLabel.setText(getString(R.string.label_watermark_size, currentSizePercent));
+        sbWatermarkSize.setOnSeekBarChangeListener(new SimpleSeekWatcher(p -> {
+            int progressVal = Math.max(60, p);
+            config.scale = progressVal / 100.0f;
+            tvWatermarkSizeLabel.setText(getString(R.string.label_watermark_size, progressVal));
+            liquidGlassWatermark.setConfig(config);
+        }));
+
         // Device Model input
         etDeviceModel.setText(config.deviceModel);
         etDeviceModel.addTextChangedListener(new SimpleWatcher(s -> {
@@ -230,7 +263,7 @@ public class EditorActivity extends AppCompatActivity {
             liquidGlassWatermark.setConfig(config);
         }));
 
-        // Position Segments
+        // Position Segments (Logo inside watermark)
         updatePositionButtons();
         btnPosLeft.setOnClickListener(v -> {
             config.logoPosition = WatermarkConfig.POSITION_LEFT;
@@ -271,6 +304,55 @@ public class EditorActivity extends AppCompatActivity {
 
         // Export Button
         btnExportFile.setOnClickListener(v -> handleExport());
+    }
+
+    private void setWatermarkAlignment(String align) {
+        config.watermarkAlignment = align;
+        updateWatermarkAlignment();
+        liquidGlassWatermark.setConfig(config);
+    }
+
+    private void updateWatermarkAlignment() {
+        String align = config.watermarkAlignment != null ? config.watermarkAlignment : WatermarkConfig.ALIGN_CENTER;
+        boolean isLeft = WatermarkConfig.ALIGN_LEFT.equalsIgnoreCase(align);
+        boolean isCenter = WatermarkConfig.ALIGN_CENTER.equalsIgnoreCase(align);
+        boolean isRight = WatermarkConfig.ALIGN_RIGHT.equalsIgnoreCase(align);
+
+        if (btnAlignLeft != null) {
+            btnAlignLeft.setBackgroundResource(isLeft ? R.drawable.bg_segmented_active : R.drawable.bg_segmented_inactive);
+            btnAlignLeft.setTextColor(getColor(isLeft ? R.color.btn_black_text : R.color.btn_light_text));
+        }
+
+        if (btnAlignCenter != null) {
+            btnAlignCenter.setBackgroundResource(isCenter ? R.drawable.bg_segmented_active : R.drawable.bg_segmented_inactive);
+            btnAlignCenter.setTextColor(getColor(isCenter ? R.color.btn_black_text : R.color.btn_light_text));
+        }
+
+        if (btnAlignRight != null) {
+            btnAlignRight.setBackgroundResource(isRight ? R.drawable.bg_segmented_active : R.drawable.bg_segmented_inactive);
+            btnAlignRight.setTextColor(getColor(isRight ? R.color.btn_black_text : R.color.btn_light_text));
+        }
+
+        if (liquidGlassWatermark != null && liquidGlassWatermark.getLayoutParams() instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) liquidGlassWatermark.getLayoutParams();
+            int marginSide = (int) (14 * getResources().getDisplayMetrics().density);
+            int marginBottom = (int) (14 * getResources().getDisplayMetrics().density);
+            if (isLeft) {
+                lp.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.START;
+                lp.leftMargin = marginSide;
+                lp.rightMargin = 0;
+            } else if (isRight) {
+                lp.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.END;
+                lp.leftMargin = 0;
+                lp.rightMargin = marginSide;
+            } else {
+                lp.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL;
+                lp.leftMargin = 0;
+                lp.rightMargin = 0;
+            }
+            lp.bottomMargin = marginBottom;
+            liquidGlassWatermark.setLayoutParams(lp);
+        }
     }
 
     private void updatePositionButtons() {

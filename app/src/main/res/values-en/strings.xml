@@ -65,9 +65,13 @@
     <string name="section_custom_image">Custom Image</string>
     <string name="custom_image_empty">No custom logo selected</string>
     <string name="custom_image_selected">Selected: %1$s</string>
-    <string name="section_image_position">Image Position</string>
-    <string name="pos_left">Left Side</string>
-    <string name="pos_right">Right Side</string>
+    <string name="section_image_position">Logo Position</string>
+    <string name="pos_left">Left</string>
+    <string name="pos_right">Right</string>
+    <string name="pos_center">Center</string>
+    <string name="section_watermark_position">Watermark Position</string>
+    <string name="section_watermark_size">Watermark Size</string>
+    <string name="label_watermark_size">Size: %1$d%%</string>
 
     <string name="section_device_text">Device Name</string>
     <string name="hint_device_text">Enter model name (e.g. Redmi 10, Xiaomi 14 Ultra...)</string>

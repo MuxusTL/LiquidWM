@@ -111,25 +111,27 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="14dp" />
 
-                <!-- Interactive Preview Box (Photos / Videos + Draggable Liquid Glass Capsule) -->
+                <!-- Full Media Preview Container (Supports any aspect ratio, no cropping) -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/previewContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="wrap_content"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="#111111">
 
                     <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="wrap_content">
 
-                        <!-- Background Image / Video Target -->
+                        <!-- Background Image / Video Target: Full photo with adjustViewBounds -->
                         <ImageView
                             android:id="@+id/ivPreviewMedia"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:maxHeight="480dp"
+                            android:scaleType="fitCenter"
                             android:src="@drawable/bg_button_light" />
 
                         <!-- Custom Liquid Glass View with Refraction and Specular Rim Highlight -->
@@ -164,6 +166,100 @@
                     android:textColor="@color/text_muted"
                     android:textSize="11sp"
                     android:fontFamily="@font/inter" />
+            </LinearLayout>
+
+            <!-- Card: Watermark Position & Size (Vị trí & Kích thước Watermark) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_watermark_position"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/inter" />
+
+                <!-- 3 Modes: Bên trái, Ở giữa, Bên phải -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_button_light"
+                    android:orientation="horizontal"
+                    android:padding="3dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="18dp">
+
+                    <TextView
+                        android:id="@+id/btnAlignLeft"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_segmented_inactive"
+                        android:gravity="center"
+                        android:text="@string/pos_left"
+                        android:textColor="@color/btn_light_text"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/inter"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btnAlignCenter"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_segmented_active"
+                        android:gravity="center"
+                        android:text="@string/pos_center"
+                        android:textColor="@color/btn_black_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/inter"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btnAlignRight"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_segmented_inactive"
+                        android:gravity="center"
+                        android:text="@string/pos_right"
+                        android:textColor="@color/btn_light_text"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/inter"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- Watermark Size Slider -->
+                <TextView
+                    android:id="@+id/tvWatermarkSizeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_watermark_size"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/inter" />
+
+                <SeekBar
+                    android:id="@+id/sbWatermarkSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="140"
+                    android:progress="100"
+                    android:progressTint="@color/btn_black"
+                    android:thumbTint="@color/btn_black"
+                    android:layout_marginTop="10dp" />
             </LinearLayout>
 
             <!-- Card: Custom Image / Logo Selection -->

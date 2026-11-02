@@ -84,15 +84,24 @@ public class LiquidGlassRenderer {
         // Slim, elegant capsule height matching user's reference image
         float capsuleH = 34f * scale;
 
-        // Position on photo
-        float centerX = width * config.posXRatio;
-        float centerY = height * config.posYRatio;
-        float left = centerX - capsuleW / 2.0f;
-        float top = centerY - capsuleH / 2.0f;
+        // Position on photo (3 fixed modes: Left, Center, Right)
+        float marginX = 24f * scale;
+        float marginY = 28f * scale;
+        float left;
+
+        if (WatermarkConfig.ALIGN_LEFT.equalsIgnoreCase(config.watermarkAlignment)) {
+            left = marginX;
+        } else if (WatermarkConfig.ALIGN_RIGHT.equalsIgnoreCase(config.watermarkAlignment)) {
+            left = width - capsuleW - marginX;
+        } else {
+            // Default: ALIGN_CENTER
+            left = (width - capsuleW) / 2.0f;
+        }
+        float top = height - capsuleH - marginY;
 
         // Clamp inside photo bounds
-        left = Math.max(12f * scale, Math.min(left, width - capsuleW - 12f * scale));
-        top = Math.max(12f * scale, Math.min(top, height - capsuleH - 12f * scale));
+        left = Math.max(8f * scale, Math.min(left, width - capsuleW - 8f * scale));
+        top = Math.max(8f * scale, Math.min(top, height - capsuleH - 8f * scale));
 
         RectF capsuleRect = new RectF(left, top, left + capsuleW, top + capsuleH);
 

@@ -122,7 +122,7 @@ public class KyantGlassEngine {
         initShaders();
         borderPaint.setStyle(Paint.Style.STROKE);
         shadowPaint.setStyle(Paint.Style.FILL);
-        shadowPaint.setColor(Color.parseColor("#38000000"));
+        shadowPaint.setColor(Color.argb(25, 0, 0, 0));
     }
 
     private void initShaders() {
@@ -158,10 +158,10 @@ public class KyantGlassEngine {
         Path pillPath = new Path();
         pillPath.addRoundRect(capsuleRect, r, r, Path.Direction.CW);
 
-        // 1. Drop shadow behind the capsule
+        // 1. Soft subtle ambient shadow behind the capsule
         canvas.drawRoundRect(
-                capsuleRect.left, capsuleRect.top + 2.5f,
-                capsuleRect.right, capsuleRect.bottom + 2.5f,
+                capsuleRect.left, capsuleRect.top + 1.2f,
+                capsuleRect.right, capsuleRect.bottom + 1.2f,
                 r, r, shadowPaint
         );
 
@@ -253,53 +253,42 @@ public class KyantGlassEngine {
     }
 
     /**
-     * Draws authentic Kyant0 specular highlight and Fresnel rim glow.
+     * Draws authentic iPhone Liquid Glass specular highlights: 2 corner crescent arcs,
+     * top rim sheen line, and luminous uniform glass perimeter.
      */
     private void drawKyantHighlights(Canvas canvas, RectF capsuleRect, float r, float rimLightStrength) {
-        float w = capsuleRect.width();
-        float h = capsuleRect.height();
+        int cornerAlpha = (int) (Math.min(1.0f, rimLightStrength * 1.25f) * 220);
+        int borderAlpha = (int) (Math.min(1.0f, rimLightStrength) * 165);
 
-        // 1. Top Specular Sheen Arc (Curved inner refraction highlight)
-        int topSheenAlpha = (int) (Math.min(1.0f, rimLightStrength * 1.2f) * 140);
-        if (topSheenAlpha > 5) {
-            RectF sheenRect = new RectF(
-                    capsuleRect.left + 3f,
-                    capsuleRect.top + 1.2f,
-                    capsuleRect.right - 3f,
-                    capsuleRect.top + h * 0.55f
-            );
-            highlightPaint.setStyle(Paint.Style.STROKE);
-            highlightPaint.setStrokeWidth(1.4f);
-            highlightPaint.setShader(new LinearGradient(
-                    sheenRect.left, sheenRect.top,
-                    sheenRect.right, sheenRect.top,
-                    new int[]{
-                            Color.argb(0, 255, 255, 255),
-                            Color.argb(topSheenAlpha, 255, 255, 255),
-                            Color.argb((int)(topSheenAlpha * 0.85f), 255, 255, 255),
-                            Color.argb(0, 255, 255, 255)
-                    },
-                    new float[]{0.0f, 0.35f, 0.70f, 1.0f},
-                    Shader.TileMode.CLAMP
-            ));
-            canvas.drawRoundRect(sheenRect, r, r, highlightPaint);
-        }
-
-        // 2. Optical Outer Rim Light (Kyant Fresnel border)
-        int rimAlpha = (int) (Math.min(1.0f, rimLightStrength) * 180);
+        // 1. Full perimeter glass stroke (Uniform luminous translucent white, NO black at bottom)
+        borderPaint.setShader(null);
+        borderPaint.setColor(Color.argb(borderAlpha, 255, 255, 255));
         borderPaint.setStrokeWidth(0.9f);
-        borderPaint.setShader(new LinearGradient(
-                capsuleRect.left, capsuleRect.top,
-                capsuleRect.right, capsuleRect.bottom,
-                new int[]{
-                        Color.argb(rimAlpha, 255, 255, 255),
-                        Color.argb((int)(rimAlpha * 0.35f), 255, 255, 255),
-                        Color.argb((int)(rimAlpha * 0.65f), 255, 255, 255)
-                },
-                new float[]{0.0f, 0.55f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
         canvas.drawRoundRect(capsuleRect, r, r, borderPaint);
+
+        highlightPaint.setStyle(Paint.Style.STROKE);
+        highlightPaint.setShader(null);
+        highlightPaint.setColor(Color.argb(cornerAlpha, 255, 255, 255));
+        highlightPaint.setStrokeWidth(1.5f);
+
+        // 2. Left corner specular crescent arc (Viền sáng góc trái iPhone)
+        RectF leftArcRect = new RectF(
+                capsuleRect.left + 0.9f, capsuleRect.top + 0.9f,
+                capsuleRect.left + 2 * r - 0.9f, capsuleRect.bottom - 0.9f
+        );
+        canvas.drawArc(leftArcRect, 110, 140, false, highlightPaint);
+
+        // 3. Right corner specular crescent arc (Viền sáng góc phải iPhone)
+        RectF rightArcRect = new RectF(
+                capsuleRect.right - 2 * r + 0.9f, capsuleRect.top + 0.9f,
+                capsuleRect.right - 0.9f, capsuleRect.bottom - 0.9f
+        );
+        canvas.drawArc(rightArcRect, 290, 140, false, highlightPaint);
+
+        // 4. Top rim specular sheen line
+        highlightPaint.setStrokeWidth(1.2f);
+        highlightPaint.setColor(Color.argb((int) (cornerAlpha * 0.90f), 255, 255, 255));
+        canvas.drawLine(capsuleRect.left + r, capsuleRect.top + 1.0f, capsuleRect.right - r, capsuleRect.top + 1.0f, highlightPaint);
     }
 
     /**

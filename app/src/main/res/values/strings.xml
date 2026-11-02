@@ -65,9 +65,13 @@
     <string name="section_custom_image">Hình ảnh tùy chỉnh</string>
     <string name="custom_image_empty">Chưa chọn hình ảnh logo</string>
     <string name="custom_image_selected">Đã chọn: %1$s</string>
-    <string name="section_image_position">Vị trí hình ảnh</string>
+    <string name="section_image_position">Vị trí logo</string>
     <string name="pos_left">Bên trái</string>
     <string name="pos_right">Bên phải</string>
+    <string name="pos_center">Ở giữa</string>
+    <string name="section_watermark_position">Vị trí Watermark</string>
+    <string name="section_watermark_size">Kích thước Watermark</string>
+    <string name="label_watermark_size">Kích thước: %1$d%%</string>
 
     <string name="section_device_text">Tên thiết bị</string>
     <string name="hint_device_text">Nhập tên máy (vd: Redmi 10, Xiaomi 14 Ultra...)</string>
