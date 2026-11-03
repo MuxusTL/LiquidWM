@@ -38,7 +38,7 @@ import dev.liquidplus.watermark.model.WatermarkConfig;
 import dev.liquidplus.watermark.model.WatermarkPreset;
 import dev.liquidplus.watermark.ui.adapter.PresetAdapter;
 import dev.liquidplus.watermark.ui.dialog.IntroDialog;
-import dev.liquidplus.watermark.util.ExifReader;
+import dev.liquidplus.watermark.engine.ExifReader;
 import dev.liquidplus.watermark.util.LocaleHelper;
 
 public class MainActivity extends AppCompatActivity {
