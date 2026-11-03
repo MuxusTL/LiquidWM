@@ -12,10 +12,13 @@ import android.os.Looper;
 import android.provider.MediaStore;
 
 import androidx.annotation.OptIn;
+import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.OverlayEffect;
+import androidx.media3.effect.TextureOverlay;
 import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
@@ -31,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import dev.liquidplus.watermark.model.WatermarkConfig;
 
@@ -76,14 +80,15 @@ public class VideoWatermarkProcessor {
 
                 mainHandler.post(() -> {
                     try {
-                        BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
-                        OverlayEffect overlayEffect = new OverlayEffect(ImmutableList.of(bitmapOverlay));
+                        TextureOverlay textureOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
+                        OverlayEffect overlayEffect = new OverlayEffect(ImmutableList.of(textureOverlay));
+                        Effect effect = overlayEffect;
+
+                        List<AudioProcessor> audioProcessors = ImmutableList.of();
+                        List<Effect> videoEffects = ImmutableList.of(effect);
 
                         EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(MediaItem.fromUri(inputUri))
-                                .setEffects(new Effects(
-                                        ImmutableList.of(),
-                                        ImmutableList.of(overlayEffect)
-                                ))
+                                .setEffects(new Effects(audioProcessors, videoEffects))
                                 .build();
 
                         ProgressHolder progressHolder = new ProgressHolder();
